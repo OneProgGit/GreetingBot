@@ -47,6 +47,9 @@ impl Database {
 
     /// Inserts a new user into the `users` table
     pub fn create_user(self, id: i64, username: &str, full_name: &str) -> Result<()> {
+        log::info!(
+            "Creating user with id `{id}`, username `{username}` and full name `{full_name}`"
+        );
         let conn = self.db_conn.lock().expect("Could not lock db_conn");
         conn.execute(
             "INSERT INTO users (id, username, full_name)
@@ -61,6 +64,7 @@ impl Database {
 
     /// Gets all users from the `users` table
     pub fn get_users(self) -> Result<Vec<User>> {
+        log::info!("Getting all users...");
         let conn = self.db_conn.lock().expect("Could not lock db_conn");
         let mut stmt = conn.prepare("SELECT id, username, full_name FROM users")?;
         let user_iter = stmt.query_map([], |row| {

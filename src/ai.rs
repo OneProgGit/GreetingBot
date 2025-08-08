@@ -15,6 +15,7 @@ fn remove_reasoning(text: &str) -> String {
 /// Makes a request using Ollama to the AI model and returns the Ok(response) or Err(err)
 pub async fn process_ollama(weather: String) -> Result<String, OllamaError> {
     // Note: it is normal to create ollama every function call, because it just has an address to requests
+    log::info!("Generating response using `{}` model", CONFIG.ai_model);
     let ollama = Ollama::default();
     let res = ollama
         .generate(GenerationRequest::new(
@@ -23,8 +24,8 @@ pub async fn process_ollama(weather: String) -> Result<String, OllamaError> {
         ))
         .await?
         .response;
+    println!("Removing reasoning part from response...");
     let fmt_res = remove_reasoning(&res);
-    println!("{fmt_res}");
     Ok(fmt_res)
 }
 

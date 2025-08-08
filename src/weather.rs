@@ -76,6 +76,10 @@ fn weather_to_emoji(desc: &str) -> String {
 
 /// Makes a request to the weather server using reqwest and formats it.
 pub async fn get_weather() -> Result<String, Box<dyn Error>> {
+    log::info!(
+        "Getting response from weather server `{}` ...",
+        CONFIG.weather_url
+    );
     let client = Client::new();
     let result = client
         .get(CONFIG.weather_url.clone())
@@ -83,6 +87,7 @@ pub async fn get_weather() -> Result<String, Box<dyn Error>> {
         .await?
         .json::<WeatherResponse>()
         .await?;
+    log::info!("Parsing weather response...");
     let current = &result.current_condition[0];
     let today = &result.weather[0];
     let status = current.weather_desc.first().map_or("?", |v| &v.value);
