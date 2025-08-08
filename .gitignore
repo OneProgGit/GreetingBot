@@ -1,5 +1,4 @@
 /target
 *.env
 config.toml
-greeting_db
-.gitignore
+greeting_db.db
