@@ -224,13 +224,13 @@ async fn main() {
                 log::info!("Text from @{username} (full name {full_name}) is {message}");
                 bot.send_message(
                     msg.chat.id,
-                    string_format!(CONFIG.start_fmt.clone(), username, msg.chat.id.to_string()),
+                    string_format!(CONFIG.start_fmt.clone(), username.clone(), msg.chat.id.to_string()),
                 )
                 .parse_mode(ParseMode::Html)
                 .await?;
                 db.create_user(
                     msg.chat.id.0,
-                    msg.chat.username().unwrap_or("user"),
+                    &username,
                     &full_name,
                 )
                 .expect("Error accessing to database");
