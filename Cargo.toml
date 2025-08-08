@@ -1,0 +1,22 @@
+[package]
+name = "greeting"
+version = "0.5.0"
+edition = "2024"
+
+[dependencies]
+chrono = "0.4.41"
+teloxide = { version = "0.17.0", features = ["macros"] }
+tokio = { version = "1.47.1", features = ["full", "macros"] }
+log = "0.4.27"
+pretty_env_logger = "0.5.0"
+dotenvy = "0.15.7"
+reqwest = { version = "0.12.22", features = ["json"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.142"
+string_format = "0.1.0"
+config = "0.15.13"
+ollama-rs = "0.3.2"
+rusqlite = "0.37.0"
+rand = "0.9.2"
+cron_tab = { version = "0.2", features = ["sync", "async"] }
+regex = "1.11.1"

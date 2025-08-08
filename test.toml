@@ -1,0 +1,21 @@
+weather_url = ""
+weather_fmt = ""
+
+ai_model = ""
+ai_prompt = ""
+ai_msg_off = ""
+
+greeting_date_cron = ""
+greeting_fmt = ""
+
+start_fmt = "Hello world!"
+
+db_url = ""
+
+draw_date_cron = ""
+draw_win_fmt = ""
+
+admin = 1
+draw_admin_fmt = ""
+
+channel = 1
