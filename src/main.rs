@@ -66,7 +66,11 @@ async fn process_chat(chat: Chat, weather: String) {
     let response = ai::process_ollama(weather.clone())
         .await
         .unwrap_or(CONFIG.ai_msg_off.clone());
-    log::info!("Ai's response for chat @{} is `{response}`", chat.username);
+    log::info!(
+        "Ai's response for chat @{} (full name {}) is `{response}`",
+        chat.username,
+        chat.full_name
+    );
     let now = Utc::now();
 
     BOT.send_message(
@@ -82,7 +86,11 @@ async fn process_chat(chat: Chat, weather: String) {
     .parse_mode(ParseMode::Html)
     .await
     .expect("Send message failed");
-    log::info!("Message sent success to chat @{}", chat.username);
+    log::info!(
+        "Message sent success to chat @{} (full name {})",
+        chat.username,
+        chat.full_name
+    );
 }
 
 /// Send a daily messages for all users
@@ -221,19 +229,19 @@ async fn main() {
 
             log::info!("Handling a message from @{username} (full name {full_name})...");
             if let Some(message) = msg.text() {
-                log::info!("Text from @{username} (full name {full_name}) is {message}");
+                log::info!("Text from @{username} (full name {full_name}): `{message}`");
                 bot.send_message(
                     msg.chat.id,
-                    string_format!(CONFIG.start_fmt.clone(), username.clone(), msg.chat.id.to_string()),
+                    string_format!(
+                        CONFIG.start_fmt.clone(),
+                        username.clone(),
+                        msg.chat.id.to_string()
+                    ),
                 )
                 .parse_mode(ParseMode::Html)
                 .await?;
-                db.create_user(
-                    msg.chat.id.0,
-                    &username,
-                    &full_name,
-                )
-                .expect("Error accessing to database");
+                db.create_user(msg.chat.id.0, &username, &full_name)
+                    .expect("Error accessing to database");
             }
             Ok(())
         }
