@@ -19,8 +19,10 @@ use crate::{
 mod ai;
 mod config;
 mod date;
-mod db;
+mod infra;
+mod models;
 mod panic_tweak;
+mod platforms;
 mod weather;
 
 /// Processes a user
@@ -184,6 +186,7 @@ async fn main() {
     dotenvy::dotenv().ok();
     pretty_env_logger::init();
 
+    // let tg =
     log::info!("Making some magic with panic...");
 
     pretty_panic();
