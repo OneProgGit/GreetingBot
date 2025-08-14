@@ -1,7 +1,10 @@
 use std::{collections::HashMap, sync::Arc};
 
 use teloxide::{
-    payloads::SendMessageSetters, prelude::Requester, types::{Message, ParseMode}, Bot
+    Bot,
+    payloads::SendMessageSetters,
+    prelude::Requester,
+    types::{Message, ParseMode},
 };
 use tokio::sync::Mutex;
 
@@ -10,14 +13,15 @@ use crate::{
     platforms::platform::{Handler, Platform},
 };
 
+#[derive(Debug)]
 pub struct Telegram {
     bot: Arc<Bot>,
     bindings: Mutex<HashMap<String, Handler>>,
 }
 
 impl Telegram {
+    #[tracing::instrument]
     async fn handle_message(self: Arc<Self>, user: User, msg: &str) {
-        log::info!("Handle message");
         if let Some(handler) = self.bindings.lock().await.get(msg) {
             handler(user).await;
         } else {
@@ -29,8 +33,8 @@ impl Telegram {
 }
 
 impl Create for Telegram {
+    #[tracing::instrument]
     fn new() -> Res<Arc<Self>> {
-        log::info!("Create Telegram instance");
         let bot = Bot::from_env();
         let tg = Self {
             bot: Arc::new(bot),
@@ -43,13 +47,11 @@ impl Create for Telegram {
 
 #[async_trait::async_trait]
 impl Platform for Telegram {
+    #[tracing::instrument]
     async fn run(self: Arc<Self>) {
-        log::info!("Run Telegram instance");
         let tg = Arc::clone(&self);
         let bot = tg.bot.clone();
-        log::info!("Start replying messages");
         teloxide::repl(bot, move |_bot: Arc<Bot>, msg: Message| {
-            log::info!("Reply to message `{}`", msg.text().unwrap_or("No text"));
             let tg = tg.clone();
             let user = User {
                 id: msg.chat.id.0.to_string(),
@@ -68,18 +70,17 @@ impl Platform for Telegram {
         .await;
     }
 
+    #[tracing::instrument]
     async fn send_message(self: Arc<Self>, user: User, msg: &str) -> Res<()> {
-        log::info!("Send message `{msg}` to user @{}", user.username);
         self.bot
             .send_message(user.id, msg)
             .parse_mode(ParseMode::Html)
             .await?;
-        log::info!("Sent message success for user @{}", user.username);
         Ok(())
     }
 
+    #[tracing::instrument]
     async fn bind(self: Arc<Self>, cmd: &str, handler: Handler) {
-        log::info!("Bind command `{cmd}`");
         let mut bindings = self.bindings.lock().await;
 
         bindings.insert(cmd.to_string(), handler);

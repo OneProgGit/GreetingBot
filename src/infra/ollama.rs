@@ -10,9 +10,11 @@ use crate::{
     tools::config::CONFIG,
 };
 
+#[derive(Debug)]
 pub struct OllamaAi;
 
 impl OllamaAi {
+    #[tracing::instrument]
     fn remove_reasoning(text: &str) -> String {
         let re = Regex::new(r"<think\b[^>]*>[\s\S]*?</think>").expect("Failed to remove reasoning");
         re.replace_all(text, "").into()
@@ -20,6 +22,7 @@ impl OllamaAi {
 }
 
 impl Create for OllamaAi {
+    #[tracing::instrument]
     fn new() -> Res<Arc<Self>> {
         Ok(Arc::new(OllamaAi))
     }
@@ -27,9 +30,9 @@ impl Create for OllamaAi {
 
 #[async_trait::async_trait]
 impl AiProvider for OllamaAi {
+    #[tracing::instrument]
     async fn process(&self, weather: String) -> Res<String> {
         // Note: it is normal to create ollama every function call, because it just has an address to requests
-        log::info!("Generate response using `{}` model", CONFIG.ai_model);
         let ollama = Ollama::default();
         let res = ollama
             .generate(GenerationRequest::new(
@@ -38,7 +41,6 @@ impl AiProvider for OllamaAi {
             ))
             .await?
             .response;
-        log::info!("Remove reasoning");
         let fmt_res = Self::remove_reasoning(&res);
         Ok(fmt_res)
     }

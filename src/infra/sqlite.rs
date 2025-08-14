@@ -6,30 +6,25 @@ use crate::{
 use rusqlite::{Connection, Result, params};
 use std::sync::{Arc, Mutex};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SqliteDb {
     db_conn: Arc<Mutex<Connection>>,
 }
 
 impl Create for SqliteDb {
+    #[tracing::instrument]
     fn new() -> Res<Arc<Self>> {
-        log::info!("Create SQLite connection");
         let conn = Connection::open(CONFIG.db_url.clone())?;
         let db = Self {
             db_conn: Arc::new(Mutex::new(conn)),
         };
-        log::info!("Created SQLite connection success");
         Ok(Arc::new(db))
     }
 }
 
 impl Database for SqliteDb {
+    #[tracing::instrument]
     fn create_user(&self, user: User) -> Res<()> {
-        log::info!(
-            "Create new user id `{}` username `{}`",
-            user.id,
-            user.username
-        );
         let conn = self.db_conn.lock().expect("Could not lock db_conn");
         conn.execute(
             "INSERT INTO users (id, username)
@@ -38,16 +33,11 @@ impl Database for SqliteDb {
                 username = excluded.username",
             params![user.id, user.username],
         )?;
-        log::info!(
-            "User id `{}` username `{}` created success",
-            user.id,
-            user.username
-        );
         Ok(())
     }
 
+    #[tracing::instrument]
     fn get_users(&self) -> Res<Vec<User>> {
-        log::info!("Get users");
         let conn = self.db_conn.lock().expect("Could not lock db_conn");
         let mut stmt = conn.prepare("SELECT id, username FROM users")?;
         let user_iter = stmt.query_map([], |row| {
@@ -59,7 +49,6 @@ impl Database for SqliteDb {
         let users: Res<Vec<User>> = user_iter
             .collect::<Result<Vec<User>, rusqlite::Error>>()
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>);
-        log::info!("Got users success");
         users
     }
 }

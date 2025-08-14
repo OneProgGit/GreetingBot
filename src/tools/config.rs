@@ -26,19 +26,12 @@ pub static CONFIG: LazyLock<Configuration> = LazyLock::new(|| {
         .expect("Failed to load config")
 });
 
+#[tracing::instrument]
 pub fn load_config(path: &str) -> Result<Configuration, ConfigError> {
-    log::info!("Load config from `{}`", path);
-    let cfg = Config::builder()
+    Config::builder()
         .add_source(File::from(Path::new(path)))
         .build()?
-        .try_deserialize();
-    if let Err(e) = cfg {
-        log::error!("Failed to load config from `{}`: {}", path, e);
-        Err(e)
-    } else {
-        log::info!("Got config `{:?}`", cfg);
-        cfg
-    }
+        .try_deserialize()
 }
 
 #[cfg(test)]

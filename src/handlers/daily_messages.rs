@@ -5,15 +5,12 @@ use crate::{
 use chrono::Utc;
 use string_format::string_format;
 
+#[tracing::instrument]
 async fn process_user(user: User, weather: String) {
-    log::info!("Handle user @{}", user.username,);
-    log::info!("Get AI response for user @{}", user.username);
     let response = AI
         .process(weather.clone())
         .await
         .unwrap_or(CONFIG.ai_msg_off.clone());
-
-    log::info!("Ai's response for user @{} is `{response}`", user.username,);
 
     let now = Utc::now();
 
@@ -33,16 +30,13 @@ async fn process_user(user: User, weather: String) {
         .expect("Send message failed");
 }
 
+#[tracing::instrument]
 pub async fn daily_message() {
-    log::info!("Daily message time!");
-    log::info!("Get weather");
-
-    let weather = WEATHER.clone().get_weather().await.unwrap_or_else(|err| {
-        log::error!("Could not get weather: `{err}`");
-        "Пасмурно".into()
-    });
-
-    log::info!("Handle all users");
+    let weather = WEATHER
+        .clone()
+        .get_weather()
+        .await
+        .unwrap_or_else(|_| "Пасмурно".into());
 
     let users = DB.clone().get_users().expect("Error while getting users");
 

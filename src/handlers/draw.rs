@@ -3,10 +3,8 @@ use rand::random_range;
 use crate::{DB, PLATFORM, models::user::User, tools::config::CONFIG};
 use string_format::string_format;
 
+#[tracing::instrument]
 pub async fn draw() {
-    log::info!("Draw time!");
-    log::info!("Get a random user");
-
     let users = DB.clone().get_users().expect("Error while getting users");
     let mut ind = random_range(0..users.len());
     let mut choice = &users[ind];
@@ -21,8 +19,6 @@ pub async fn draw() {
             panic!("Unluckly, can't choose the winner");
         }
     }
-
-    log::info!("The winner is @{}!", choice.username,);
 
     PLATFORM
         .clone()
