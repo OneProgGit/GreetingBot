@@ -1,7 +1,6 @@
 use crate::{
-    config::CONFIG,
     infra::database::Database,
-    models::{types::Res, user::User},
+    models::{types::Res, user::User}, tools::config::CONFIG,
 };
 use rusqlite::{Connection, Result, params};
 use std::sync::{Arc, Mutex};

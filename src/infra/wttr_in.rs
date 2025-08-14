@@ -1,22 +1,19 @@
-//! Used for getting weather data from specific server (we recommend to use wttr.in, because it doesn't require API key).
 use std::error::Error;
 
 use reqwest::Client;
 use serde::Deserialize;
 use string_format::string_format;
 
-use crate::config::CONFIG;
+use crate::{infra::weather::WeatherHandler, tools::config::CONFIG};
 
-/// Defines response from weather server.
 #[derive(Debug, Deserialize)]
-struct WeatherResponse {
-    current_condition: Vec<Condition>,
-    weather: Vec<Weather>,
+struct WttrInWeatherResponse {
+    current_condition: Vec<WttrInCondition>,
+    weather: Vec<WttrInWeather>,
 }
 
-/// Defines current condition.
 #[derive(Debug, Deserialize)]
-struct Condition {
+struct WttrInCondition {
     #[serde(rename = "temp_C")]
     temp_c: String,
     #[serde(rename = "FeelsLikeC")]
@@ -24,12 +21,11 @@ struct Condition {
     #[serde(rename = "windspeedKmph")]
     wind_speed_kmph: String,
     #[serde(rename = "lang_ru")]
-    weather_desc: Vec<LangValue>,
+    weather_desc: Vec<WttrInLangValue>,
 }
 
-/// Defines the weather of the whole day.
 #[derive(Debug, Deserialize)]
-struct Weather {
+struct WttrInWeather {
     #[serde(rename = "date")]
     _date: String,
     #[serde(rename = "maxtempC")]
@@ -38,13 +34,45 @@ struct Weather {
     min_temp_c: String,
 }
 
-/// Defines language of the part of response (maybe depends on wttr.in only).
 #[derive(Debug, Deserialize)]
-struct LangValue {
+struct WttrInLangValue {
     value: String,
 }
 
-/// Converts the weather description to the sequence of emojis. Works only with Russian language.
+struct WttrInWetherHandler;
+
+impl WeatherHandler for WttrInWetherHandler {
+    async fn get_weather() -> Result<String, Box<dyn Error>> {
+        log::info!(
+            "Getting response from weather server `{}` ...",
+            CONFIG.weather_url
+        );
+        let client = Client::new();
+        let result = client
+            .get(CONFIG.weather_url.clone())
+            .send()
+            .await?
+            .json::<WttrInWeatherResponse>()
+            .await?;
+        log::info!("Parsing weather response...");
+        let current = &result.current_condition[0];
+        let today = &result.weather[0];
+        let status = current.weather_desc.first().map_or("?", |v| &v.value);
+        let status_char = weather_to_emoji(status);
+        Ok(string_format!(
+            CONFIG.weather_fmt.clone(),
+            current.temp_c.clone(),
+            current.feels_like_c.clone(),
+            current.wind_speed_kmph.clone(),
+            status_char,
+            status.into(),
+            today.min_temp_c.clone(),
+            today.max_temp_c.clone()
+        ))
+    }
+}
+
+// TODO: Move this stuff to handlers.
 fn weather_to_emoji(desc: &str) -> String {
     let desc_lower = desc.to_lowercase();
 
@@ -74,39 +102,9 @@ fn weather_to_emoji(desc: &str) -> String {
     ans
 }
 
-/// Makes a request to the weather server using reqwest and formats it.
-pub async fn get_weather() -> Result<String, Box<dyn Error>> {
-    log::info!(
-        "Getting response from weather server `{}` ...",
-        CONFIG.weather_url
-    );
-    let client = Client::new();
-    let result = client
-        .get(CONFIG.weather_url.clone())
-        .send()
-        .await?
-        .json::<WeatherResponse>()
-        .await?;
-    log::info!("Parsing weather response...");
-    let current = &result.current_condition[0];
-    let today = &result.weather[0];
-    let status = current.weather_desc.first().map_or("?", |v| &v.value);
-    let status_char = weather_to_emoji(status);
-    Ok(string_format!(
-        CONFIG.weather_fmt.clone(),
-        current.temp_c.clone(),
-        current.feels_like_c.clone(),
-        current.wind_speed_kmph.clone(),
-        status_char,
-        status.into(),
-        today.min_temp_c.clone(),
-        today.max_temp_c.clone()
-    ))
-}
-
 #[cfg(test)]
 mod weather_tests {
-    use crate::weather::weather_to_emoji;
+    use crate::infra::wttr_in::weather_to_emoji;
 
     #[test]
     fn test_weather_emoji_one_condition_lowercase() {

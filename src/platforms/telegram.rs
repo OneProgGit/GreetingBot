@@ -1,6 +1,10 @@
-use std::{collections::HashMap, pin::Pin, sync::Arc};
+use std::{
+    collections::HashMap,
+    pin::Pin, sync::Arc,
+};
 
 use teloxide::{Bot, prelude::Requester, types::Message};
+use tokio::sync::Mutex;
 
 use crate::{
     models::{types::Res, user::User},
@@ -11,12 +15,12 @@ type Handler = Box<dyn Fn(User) -> Pin<Box<dyn Future<Output = ()> + Send + Sync
 
 pub struct Telegram {
     bot: Arc<Bot>,
-    bindings: HashMap<String, Handler>,
+    bindings: Mutex<HashMap<String, Handler>>,
 }
 
 impl Telegram {
-    async fn handle_message(&self, user: User, msg: &str) {
-        if let Some(handler) = self.bindings.get(msg) {
+    async fn handle_message(self: Arc<Self>, user: User, msg: &str) {
+        if let Some(handler) = self.bindings.lock().await.get(msg) {
             handler(user).await;
         } else {
             self.send_message(user, "Неизвестная команда").await;
@@ -24,16 +28,24 @@ impl Telegram {
     }
 }
 
+#[async_trait::async_trait]
 impl Platform for Telegram {
-    async fn new() -> Self {
+    async fn new() -> Arc<Self> {
         let bot = Bot::from_env();
         let tg = Self {
             bot: Arc::new(bot),
-            bindings: HashMap::new(),
+            bindings: Mutex::new(HashMap::new()),
         };
-        tokio::spawn(async {
-            teloxide::repl(bot, move |bot: Bot, msg: Message| {
-                let bot = bot.clone();
+
+        Arc::new(tg)
+    }
+
+    async fn run(self: Arc<Self>) {
+        let tg = Arc::clone(&self);
+        let bot = tg.bot.clone();
+        tokio::spawn(async move {
+            teloxide::repl(bot, move |_: Bot, msg: Message| {
+                let tg = tg.clone();
                 let user = User {
                     id: msg.chat.id.0.to_string(),
                     username: msg
@@ -53,21 +65,16 @@ impl Platform for Telegram {
             })
             .await;
         });
-
-        tg
     }
 
-    async fn send_message(&self, user: User, msg: &str) -> Res<()> {
+    async fn send_message(self: Arc<Self>, user: User, msg: &str) -> Res<()> {
         self.bot.send_message(user.id, msg).await?;
         Ok(())
     }
 
-    async fn bind<F, Fut>(&mut self, cmd: &str, handler: F)
-    where
-        F: Fn(User) -> Fut + Send + Sync + 'static,
-        Fut: Future<Output = ()> + Send + Sync + 'static,
-    {
-        self.bindings
-            .insert(cmd.to_string(), Box::new(move |usr| Box::pin(handler(usr))));
+    async fn bind(self: Arc<Self>, cmd: &str, handler: Box<dyn Fn(User) -> Pin<Box<dyn Future<Output = ()> + Send + Sync>> + Send + Sync>){
+        let mut bindings = self.bindings.lock().await;
+
+        bindings.insert(cmd.to_string(), Box::new(move |usr| Box::pin(handler(usr))));
     }
 }

@@ -4,179 +4,21 @@
 use chrono::Utc;
 use cron_tab::AsyncCron;
 use rand::random_range;
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 use string_format::string_format;
 use teloxide::{prelude::*, types::ParseMode};
 
-use crate::{
-    config::CONFIG,
-    date::format_datetime_russian,
-    db::{Chat, Database, User},
-    panic_tweak::pretty_panic,
-    weather::get_weather,
-};
+use crate::platforms::{platform::Platform, telegram::Telegram};
 
-mod ai;
-mod config;
-mod date;
+mod tools;
+mod handlers;
 mod infra;
 mod models;
-mod panic_tweak;
 mod platforms;
-mod weather;
 
-/// Processes a user
-async fn process_user(user: User, weather: String) {
-    log::info!(
-        "Handling user @{} (full name {})...",
-        user.username,
-        user.full_name
-    );
-    let response = ai::process_ollama(weather.clone())
-        .await
-        .unwrap_or(CONFIG.ai_msg_off.clone());
-    log::info!(
-        "Ai's response for user @{} (full name {}) is `{response}`",
-        user.username,
-        user.full_name
-    );
-    let now = Utc::now();
-
-    BOT.send_message(
-        UserId(user.id),
-        string_format!(
-            CONFIG.greeting_fmt.clone(),
-            user.username.clone(),
-            format_datetime_russian(now.naive_local()),
-            weather,
-            response.clone()
-        ),
-    )
-    .parse_mode(ParseMode::Html)
-    .await
-    .expect("Send message failed");
-    log::info!(
-        "Message sent success to user @{} (full name {})",
-        user.username,
-        user.full_name
-    );
-}
-
-/// Processes a chat
-async fn process_chat(chat: Chat, weather: String) {
-    log::info!("Handling chat @{}...", chat.username);
-    let response = ai::process_ollama(weather.clone())
-        .await
-        .unwrap_or(CONFIG.ai_msg_off.clone());
-    log::info!(
-        "Ai's response for chat @{} (full name {}) is `{response}`",
-        chat.username,
-        chat.full_name
-    );
-    let now = Utc::now();
-
-    BOT.send_message(
-        ChatId(chat.id),
-        string_format!(
-            CONFIG.greeting_fmt.clone(),
-            chat.username.clone(),
-            format_datetime_russian(now.naive_local()),
-            weather,
-            response.clone()
-        ),
-    )
-    .parse_mode(ParseMode::Html)
-    .await
-    .expect("Send message failed");
-    log::info!(
-        "Message sent success to chat @{} (full name {})",
-        chat.username,
-        chat.full_name
-    );
-}
-
-/// Send a daily messages for all users
-async fn daily_message() {
-    log::info!("Daily message time!");
-
-    log::info!("Getting weather...");
-
-    let weather = get_weather().await.unwrap_or_else(|err| {
-        log::error!("Could not get weather: `{err}`");
-        "Пасмурно".into()
-    });
-
-    log::info!("Handling all users...");
-
-    let users = DB.clone().get_users().expect("Error while getting users");
-
-    for user in users {
-        tokio::spawn(process_user(user, weather.clone()));
-    }
-
-    let channel = Chat {
-        id: CONFIG.channel,
-        username: "oneprogofficial".into(),
-        full_name: "OneProg".into(),
-    };
-
-    tokio::spawn(process_chat(channel, weather.clone()));
-}
-
-/// Chooses a random user to make a draw
-async fn draw() {
-    log::info!("Draw time!");
-    log::info!("Getting a random user...");
-
-    let users = DB.clone().get_users().expect("Error while getting users");
-    let mut ind = random_range(0..users.len());
-    let mut choice = &users[ind];
-
-    let mut it = 0;
-
-    while choice.id == CONFIG.admin {
-        ind = random_range(0..users.len());
-        choice = &users[ind];
-        it += 1;
-        if it == 10000000 {
-            panic!("Unluckly, can't choose the winner");
-        }
-    }
-
-    log::info!(
-        "The winner is @{} (full name {})!",
-        choice.username,
-        choice.full_name
-    );
-
-    BOT.send_message(
-        UserId(choice.id),
-        string_format!(CONFIG.draw_win_fmt.clone(), choice.username.clone()),
-    )
-    .parse_mode(ParseMode::Html)
-    .await
-    .expect("Send message failed");
-
-    BOT.send_message(
-        UserId(CONFIG.admin),
-        string_format!(
-            CONFIG.draw_admin_fmt.clone(),
-            choice.username.clone(),
-            choice.full_name.clone()
-        ),
-    )
-    .parse_mode(ParseMode::Html)
-    .await
-    .expect("Send message failed");
-
-    log::info!(
-        "Message sent success to user @{} (full name {})",
-        choice.username,
-        choice.full_name
-    );
-}
-
-pub static BOT: LazyLock<Bot> = LazyLock::new(Bot::from_env);
+pub static PLATFORM: LazyLock<Arc<dyn Platform>> = LazyLock::new(|| {
+    tokio::runtime::Handle::current().block_on(Telegram::new())
+});
 
 pub static DB: LazyLock<Database> =
     LazyLock::new(|| Database::from_config().expect("DB connection failed"));
