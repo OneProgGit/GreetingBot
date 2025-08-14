@@ -1,5 +1,8 @@
 use crate::{
-    handlers::{date::format_datetime_russian, formats::weather_to_emoji}, models::user::User, tools::config::CONFIG, AI, DB, PLATFORM, WEATHER
+    AI, DB, PLATFORM, WEATHER,
+    handlers::{date::format_datetime_russian, formats::weather_to_emoji},
+    models::user::User,
+    tools::config::CONFIG,
 };
 use chrono::Utc;
 use string_format::string_format;

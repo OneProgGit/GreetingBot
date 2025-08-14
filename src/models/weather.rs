@@ -5,5 +5,5 @@ pub struct Weather {
     pub wind_speed_kmph: String,
     pub min_temp_c: String,
     pub max_temp_c: String,
-    pub status: String, 
+    pub status: String,
 }
