@@ -3,8 +3,7 @@ use std::{env, path::Path, sync::LazyLock};
 use config::{Config, ConfigError, File};
 use serde::Deserialize;
 
-/// Defines all configuration stuff
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Configuration {
     pub weather_url: String,
     pub weather_fmt: String,
@@ -28,10 +27,18 @@ pub static CONFIG: LazyLock<Configuration> = LazyLock::new(|| {
 });
 
 pub fn load_config(path: &str) -> Result<Configuration, ConfigError> {
-    Config::builder()
+    log::info!("Load config from `{}`", path);
+    let cfg = Config::builder()
         .add_source(File::from(Path::new(path)))
         .build()?
-        .try_deserialize()
+        .try_deserialize();
+    if let Err(e) = cfg {
+        log::error!("Failed to load config from `{}`: {}", path, e);
+        Err(e)
+    } else {
+        log::info!("Got config `{:?}`", cfg);
+        cfg
+    }
 }
 
 #[cfg(test)]
@@ -40,7 +47,7 @@ mod config_test {
 
     #[test]
     fn test_load_config() {
-        let path = "test.toml"; // Be sure this file exists to pass test
+        let path = "test.toml";
         let res = load_config(path).expect("Failed to load config");
         assert_eq!(res.start_fmt, "Hello world!");
     }

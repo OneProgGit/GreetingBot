@@ -1,5 +1,5 @@
-use std::{pin::Pin, sync::Arc};
 use crate::models::{traits::Create, types::Res, user::User};
+use std::{pin::Pin, sync::Arc};
 
 pub type Handler = fn(User) -> Pin<Box<dyn Future<Output = ()> + Send>>;
 

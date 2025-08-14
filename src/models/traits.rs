@@ -4,6 +4,6 @@ use crate::models::types::Res;
 
 pub trait Create {
     fn new() -> Res<Arc<Self>>
-    where 
+    where
         Self: Sized;
 }

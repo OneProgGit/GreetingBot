@@ -4,7 +4,11 @@ use ollama_rs::{Ollama, generation::completion::request::GenerationRequest};
 use regex::Regex;
 use string_format::string_format;
 
-use crate::{infra::ai::AiProvider, models::{traits::Create, types::Res}, tools::config::CONFIG};
+use crate::{
+    infra::ai::AiProvider,
+    models::{traits::Create, types::Res},
+    tools::config::CONFIG,
+};
 
 pub struct OllamaAi;
 
@@ -25,7 +29,7 @@ impl Create for OllamaAi {
 impl AiProvider for OllamaAi {
     async fn process(&self, weather: String) -> Res<String> {
         // Note: it is normal to create ollama every function call, because it just has an address to requests
-        log::info!("Generating response using `{}` model", CONFIG.ai_model);
+        log::info!("Generate response using `{}` model", CONFIG.ai_model);
         let ollama = Ollama::default();
         let res = ollama
             .generate(GenerationRequest::new(
@@ -34,7 +38,7 @@ impl AiProvider for OllamaAi {
             ))
             .await?
             .response;
-        println!("Removing reasoning part from response...");
+        log::info!("Remove reasoning");
         let fmt_res = Self::remove_reasoning(&res);
         Ok(fmt_res)
     }

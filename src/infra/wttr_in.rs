@@ -4,7 +4,11 @@ use reqwest::Client;
 use serde::Deserialize;
 use string_format::string_format;
 
-use crate::{infra::weather::WeatherHandler, models::{traits::Create, types::Res}, tools::config::CONFIG};
+use crate::{
+    infra::weather::WeatherHandler,
+    models::{traits::Create, types::Res},
+    tools::config::CONFIG,
+};
 
 #[derive(Debug, Deserialize)]
 struct WttrInWeatherResponse {
@@ -49,11 +53,8 @@ impl Create for WttrInWetherHandler {
 
 #[async_trait::async_trait]
 impl WeatherHandler for WttrInWetherHandler {
-    async fn get_weather(&self,) -> Result<String, Box<dyn Error>> {
-        log::info!(
-            "Getting response from weather server `{}` ...",
-            CONFIG.weather_url
-        );
+    async fn get_weather(&self) -> Result<String, Box<dyn Error>> {
+        log::info!("Get response from weather server `{}`", CONFIG.weather_url);
         let client = Client::new();
         let result = client
             .get(CONFIG.weather_url.clone())
@@ -61,11 +62,12 @@ impl WeatherHandler for WttrInWetherHandler {
             .await?
             .json::<WttrInWeatherResponse>()
             .await?;
-        log::info!("Parsing weather response...");
+        log::info!("Parse weather response");
         let current = &result.current_condition[0];
         let today = &result.weather[0];
         let status = current.weather_desc.first().map_or("?", |v| &v.value);
         let status_char = weather_to_emoji(status);
+        log::info!("Weather is done");
         Ok(string_format!(
             CONFIG.weather_fmt.clone(),
             current.temp_c.clone(),

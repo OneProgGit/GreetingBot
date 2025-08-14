@@ -4,6 +4,7 @@ use std::panic;
 
 /// Makes some magic to make panics look well!
 pub fn pretty_panic() {
+    log::info!("Set panic hook");
     panic::set_hook(Box::new(|panic_info| {
         let msg = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
             *s
@@ -21,4 +22,5 @@ pub fn pretty_panic() {
 
         log::error!("thread panicked at '{msg}', {location}");
     }));
+    log::info!("Panic hook set");
 }

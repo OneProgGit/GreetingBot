@@ -27,7 +27,7 @@ const MONTHS: [&str; 13] = [
 ];
 
 pub fn format_datetime_russian(dt: NaiveDateTime) -> String {
-    log::info!("Formatting datetime to Russian...");
+    log::info!("Format datetime to Russian");
     let weekday = WEEKDAYS[dt.weekday().num_days_from_sunday() as usize];
     let day = dt.day();
     let month = MONTHS[dt.month() as usize];

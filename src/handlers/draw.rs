@@ -1,11 +1,11 @@
 use rand::random_range;
 
-use crate::{models::user::User, tools::config::CONFIG, DB, PLATFORM};
+use crate::{DB, PLATFORM, models::user::User, tools::config::CONFIG};
 use string_format::string_format;
 
 pub async fn draw() {
     log::info!("Draw time!");
-    log::info!("Getting a random user...");
+    log::info!("Get a random user");
 
     let users = DB.clone().get_users().expect("Error while getting users");
     let mut ind = random_range(0..users.len());
@@ -22,36 +22,28 @@ pub async fn draw() {
         }
     }
 
-    log::info!(
-        "The winner is @{}!",
-        choice.username,
-    );
+    log::info!("The winner is @{}!", choice.username,);
 
-    PLATFORM.clone().send_message(
-        choice.clone(),
-        &string_format!(CONFIG.draw_win_fmt.clone(), choice.username.clone()),
-    )
-    .await
-    .expect("Send message failed");
+    PLATFORM
+        .clone()
+        .send_message(
+            choice.clone(),
+            &string_format!(CONFIG.draw_win_fmt.clone(), choice.username.clone()),
+        )
+        .await
+        .expect("Send message failed");
 
     let admin = User {
         id: CONFIG.clone().admin,
-        username: "admin".into()
+        username: "admin".into(),
     };
 
-    PLATFORM.clone().send_message(
-        admin,
-        &string_format!(
-            CONFIG.draw_admin_fmt.clone(),
-            choice.username.clone()
-        ),
-    )
-    .await
-    .expect("Send message failed");
-
-    log::info!(
-        "Message sent success to user @{}",
-        choice.username,
-    );
+    PLATFORM
+        .clone()
+        .send_message(
+            admin,
+            &string_format!(CONFIG.draw_admin_fmt.clone(), choice.username.clone()),
+        )
+        .await
+        .expect("Send message failed");
 }
-
