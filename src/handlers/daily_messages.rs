@@ -1,6 +1,5 @@
 use crate::{
-    AI, DB, PLATFORM, WEATHER, handlers::date::format_datetime_russian, models::user::User,
-    tools::config::CONFIG,
+    handlers::{date::format_datetime_russian, formats::weather_to_emoji}, models::user::User, tools::config::CONFIG, AI, DB, PLATFORM, WEATHER
 };
 use chrono::Utc;
 use string_format::string_format;
@@ -32,16 +31,27 @@ async fn process_user(user: User, weather: String) {
 
 #[tracing::instrument]
 pub async fn daily_message() {
-    let weather = WEATHER
+    let weather_struct = WEATHER
         .clone()
         .get_weather()
         .await
-        .unwrap_or_else(|_| "Пасмурно".into());
+        .expect("Failed to get weather");
+
+    let formatted_weather = string_format!(
+        CONFIG.weather_fmt.clone(),
+        weather_struct.temp_c,
+        weather_struct.feels_like_c,
+        weather_struct.wind_speed_kmph,
+        weather_struct.min_temp_c,
+        weather_struct.max_temp_c,
+        weather_to_emoji(&weather_struct.status),
+        weather_struct.status
+    );
 
     let users = DB.clone().get_users().expect("Error while getting users");
 
     for user in users {
-        tokio::spawn(process_user(user, weather.clone()));
+        tokio::spawn(process_user(user, formatted_weather.clone()));
     }
 
     let channel = User {
@@ -49,5 +59,5 @@ pub async fn daily_message() {
         username: "oneprogofficial".into(),
     };
 
-    tokio::spawn(process_user(channel, weather.clone()));
+    tokio::spawn(process_user(channel, formatted_weather.clone()));
 }

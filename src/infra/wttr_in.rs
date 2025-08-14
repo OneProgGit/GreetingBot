@@ -2,12 +2,10 @@ use std::{error::Error, sync::Arc};
 
 use reqwest::Client;
 use serde::Deserialize;
-use string_format::string_format;
 
 use crate::{
-    handlers::formats::weather_to_emoji,
     infra::weather::WeatherHandler,
-    models::{traits::Create, types::Res},
+    models::{traits::Create, types::Res, weather::Weather},
     tools::config::CONFIG,
 };
 
@@ -57,7 +55,7 @@ impl Create for WttrInWetherHandler {
 #[async_trait::async_trait]
 impl WeatherHandler for WttrInWetherHandler {
     #[tracing::instrument]
-    async fn get_weather(&self) -> Result<String, Box<dyn Error>> {
+    async fn get_weather(&self) -> Result<Weather, Box<dyn Error>> {
         let client = Client::new();
         let result = client
             .get(CONFIG.weather_url.clone())
@@ -68,16 +66,13 @@ impl WeatherHandler for WttrInWetherHandler {
         let current = &result.current_condition[0];
         let today = &result.weather[0];
         let status = current.weather_desc.first().map_or("?", |v| &v.value);
-        let status_char = weather_to_emoji(status);
-        Ok(string_format!(
-            CONFIG.weather_fmt.clone(),
-            current.temp_c.clone(),
-            current.feels_like_c.clone(),
-            current.wind_speed_kmph.clone(),
-            status_char,
-            status.into(),
-            today.min_temp_c.clone(),
-            today.max_temp_c.clone()
-        ))
+        Ok(Weather {
+            temp_c: current.temp_c.clone(),
+            feels_like_c: current.feels_like_c.clone(),
+            wind_speed_kmph: current.wind_speed_kmph.clone(),
+            min_temp_c: today.min_temp_c.clone(),
+            max_temp_c: today.max_temp_c.clone(),
+            status: status.to_string(),
+        })
     }
 }
