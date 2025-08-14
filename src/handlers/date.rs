@@ -1,8 +1,5 @@
-//! Used for formatting date
-
 use chrono::{Datelike, NaiveDateTime, Timelike};
 
-/// Defines all days of the week in American format.
 const WEEKDAYS: [&str; 7] = [
     "воскресенье",
     "понедельник",
@@ -13,7 +10,6 @@ const WEEKDAYS: [&str; 7] = [
     "суббота",
 ];
 
-/// Defines all months. The 0th is empty, because there is no 0th month!
 const MONTHS: [&str; 13] = [
     "",
     "января",
@@ -30,7 +26,6 @@ const MONTHS: [&str; 13] = [
     "декабря",
 ];
 
-/// Formats datetime from NaiveDataTime to human-readable format in Russian.
 pub fn format_datetime_russian(dt: NaiveDateTime) -> String {
     log::info!("Formatting datetime to Russian...");
     let weekday = WEEKDAYS[dt.weekday().num_days_from_sunday() as usize];
@@ -47,7 +42,7 @@ pub fn format_datetime_russian(dt: NaiveDateTime) -> String {
 mod date_tests {
     use chrono::NaiveDate;
 
-    use crate::date::format_datetime_russian;
+    use crate::handlers::date::format_datetime_russian;
 
     #[test]
     fn test_format_datetime_russian() {

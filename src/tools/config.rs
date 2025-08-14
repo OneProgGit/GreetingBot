@@ -17,9 +17,9 @@ pub struct Configuration {
     pub db_url: String,
     pub draw_date_cron: String,
     pub draw_win_fmt: String,
-    pub admin: u64,
+    pub admin: String,
     pub draw_admin_fmt: String,
-    pub channel: i64,
+    pub channel: String,
 }
 
 pub static CONFIG: LazyLock<Configuration> = LazyLock::new(|| {

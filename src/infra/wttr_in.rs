@@ -1,10 +1,10 @@
-use std::error::Error;
+use std::{error::Error, sync::Arc};
 
 use reqwest::Client;
 use serde::Deserialize;
 use string_format::string_format;
 
-use crate::{infra::weather::WeatherHandler, tools::config::CONFIG};
+use crate::{infra::weather::WeatherHandler, models::{traits::Create, types::Res}, tools::config::CONFIG};
 
 #[derive(Debug, Deserialize)]
 struct WttrInWeatherResponse {
@@ -39,10 +39,17 @@ struct WttrInLangValue {
     value: String,
 }
 
-struct WttrInWetherHandler;
+pub struct WttrInWetherHandler;
 
+impl Create for WttrInWetherHandler {
+    fn new() -> Res<Arc<Self>> {
+        Ok(Arc::new(WttrInWetherHandler))
+    }
+}
+
+#[async_trait::async_trait]
 impl WeatherHandler for WttrInWetherHandler {
-    async fn get_weather() -> Result<String, Box<dyn Error>> {
+    async fn get_weather(&self,) -> Result<String, Box<dyn Error>> {
         log::info!(
             "Getting response from weather server `{}` ...",
             CONFIG.weather_url

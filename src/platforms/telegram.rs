@@ -1,17 +1,15 @@
 use std::{
     collections::HashMap,
-    pin::Pin, sync::Arc,
+    sync::Arc,
 };
 
-use teloxide::{Bot, prelude::Requester, types::Message};
+use teloxide::{payloads::SendMessageSetters, prelude::Requester, types::{Message, ParseMode}, Bot};
 use tokio::sync::Mutex;
 
 use crate::{
     models::{traits::Create, types::Res, user::User},
-    platforms::platform::Platform,
+    platforms::platform::{Handler, Platform},
 };
-
-type Handler = Box<dyn Fn(User) -> Pin<Box<dyn Future<Output = ()> + Send + Sync>> + Send + Sync>;
 
 pub struct Telegram {
     bot: Arc<Bot>,
@@ -23,7 +21,7 @@ impl Telegram {
         if let Some(handler) = self.bindings.lock().await.get(msg) {
             handler(user).await;
         } else {
-            self.send_message(user, "Неизвестная команда").await;
+            self.send_message(user, "Неизвестная команда").await.expect("Failed to send message");
         }
     }
 }
@@ -70,13 +68,13 @@ impl Platform for Telegram {
     }
 
     async fn send_message(self: Arc<Self>, user: User, msg: &str) -> Res<()> {
-        self.bot.send_message(user.id, msg).await?;
+        self.bot.send_message(user.id, msg).parse_mode(ParseMode::Html).await?;
         Ok(())
     }
 
-    async fn bind(self: Arc<Self>, cmd: &str, handler: Box<dyn Fn(User) -> Pin<Box<dyn Future<Output = ()> + Send + Sync>> + Send + Sync>){
+    async fn bind(self: Arc<Self>, cmd: &str, handler: Handler){
         let mut bindings = self.bindings.lock().await;
 
-        bindings.insert(cmd.to_string(), Box::new(move |usr| Box::pin(handler(usr))));
+        bindings.insert(cmd.to_string(), handler);
     }
 }
