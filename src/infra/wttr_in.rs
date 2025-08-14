@@ -5,7 +5,10 @@ use serde::Deserialize;
 use string_format::string_format;
 
 use crate::{
-    handlers::formats::weather_to_emoji, infra::weather::WeatherHandler, models::{traits::Create, types::Res}, tools::config::CONFIG
+    handlers::formats::weather_to_emoji,
+    infra::weather::WeatherHandler,
+    models::{traits::Create, types::Res},
+    tools::config::CONFIG,
 };
 
 #[derive(Debug, Deserialize)]
