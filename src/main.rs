@@ -8,7 +8,7 @@ use std::sync::{Arc, LazyLock};
 use string_format::string_format;
 use teloxide::{prelude::*, types::ParseMode};
 
-use crate::platforms::{platform::Platform, telegram::Telegram};
+use crate::{infra::{ai::AiProvider, database::Database, ollama::OllamaAi, sqlite::SqliteDb}, models::traits::Create, platforms::{platform::Platform, telegram::Telegram}, tools::{config::CONFIG, panic_tweak::pretty_panic}};
 
 mod tools;
 mod handlers;
@@ -17,22 +17,24 @@ mod models;
 mod platforms;
 
 pub static PLATFORM: LazyLock<Arc<dyn Platform>> = LazyLock::new(|| {
-    tokio::runtime::Handle::current().block_on(Telegram::new())
+    Telegram::new().unwrap()
 });
 
-pub static DB: LazyLock<Database> =
-    LazyLock::new(|| Database::from_config().expect("DB connection failed"));
+pub static DB: LazyLock<Arc<dyn Database>> = LazyLock::new(|| 
+    SqliteDb::new().expect("Failed to connect to database")
+);
+
+pub static AI: LazyLock<Arc<dyn AiProvider>> = LazyLock::new(|| 
+    Arc::new(OllamaAi)
+);
+
 
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
     pretty_env_logger::init();
-
-    // let tg =
     log::info!("Making some magic with panic...");
-
     pretty_panic();
-
     let mut cron = AsyncCron::new(Utc);
 
     log::info!("Creating daily message task...");

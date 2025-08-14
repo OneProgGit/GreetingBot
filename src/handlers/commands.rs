@@ -14,9 +14,7 @@ async fn process_user(user: User, weather: String) {
         "Ai's response for user @{} is `{response}`",
         user.username,
     );
-    let now = Utc::now();
-
-    
+    let now = Utc::now()
 }
 
 async fn daily_message() {

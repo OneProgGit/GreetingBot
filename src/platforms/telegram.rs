@@ -7,7 +7,7 @@ use teloxide::{Bot, prelude::Requester, types::Message};
 use tokio::sync::Mutex;
 
 use crate::{
-    models::{types::Res, user::User},
+    models::{traits::Create, types::Res, user::User},
     platforms::platform::Platform,
 };
 
@@ -28,18 +28,20 @@ impl Telegram {
     }
 }
 
-#[async_trait::async_trait]
-impl Platform for Telegram {
-    async fn new() -> Arc<Self> {
+impl Create for Telegram {
+    fn new() -> Res<Arc<Self>> {
         let bot = Bot::from_env();
         let tg = Self {
             bot: Arc::new(bot),
             bindings: Mutex::new(HashMap::new()),
         };
 
-        Arc::new(tg)
+        Ok(Arc::new(tg))
     }
+}
 
+#[async_trait::async_trait]
+impl Platform for Telegram {
     async fn run(self: Arc<Self>) {
         let tg = Arc::clone(&self);
         let bot = tg.bot.clone();

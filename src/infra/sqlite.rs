@@ -1,6 +1,6 @@
 use crate::{
     infra::database::Database,
-    models::{types::Res, user::User}, tools::config::CONFIG,
+    models::{traits::Create, types::Res, user::User}, tools::config::CONFIG,
 };
 use rusqlite::{Connection, Result, params};
 use std::sync::{Arc, Mutex};
@@ -10,15 +10,17 @@ pub struct SqliteDb {
     db_conn: Arc<Mutex<Connection>>,
 }
 
-impl Database for SqliteDb {
-    fn new() -> Res<Box<Self>> {
+impl Create for SqliteDb {
+    fn new() -> Res<Arc<Self>> {
         let conn = Connection::open(CONFIG.db_url.clone())?;
         let db = Self {
             db_conn: Arc::new(Mutex::new(conn)),
         };
-        Ok(Box::new(db))
+        Ok(Arc::new(db))
     }
+}
 
+impl Database for SqliteDb {
     fn create_user(&self, user: User) -> Res<()> {
         let conn = self.db_conn.lock().expect("Could not lock db_conn");
         conn.execute(

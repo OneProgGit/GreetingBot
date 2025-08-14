@@ -1,8 +1,10 @@
-use ollama_rs::{Ollama, error::OllamaError, generation::completion::request::GenerationRequest};
+use std::sync::Arc;
+
+use ollama_rs::{Ollama, generation::completion::request::GenerationRequest};
 use regex::Regex;
 use string_format::string_format;
 
-use crate::{infra::ai::AiProvider, models::types::Res, tools::config::CONFIG};
+use crate::{infra::ai::AiProvider, models::{traits::Create, types::Res}, tools::config::CONFIG};
 
 pub struct OllamaAi;
 
@@ -13,8 +15,15 @@ impl OllamaAi {
     }
 }
 
+impl Create for OllamaAi {
+    fn new() -> Res<Arc<Self>> {
+        Ok(Arc::new(OllamaAi))
+    }
+}
+
+#[async_trait::async_trait]
 impl AiProvider for OllamaAi {
-    async fn process(weather: String) -> Res<String> {
+    async fn process(&self, weather: String) -> Res<String> {
         // Note: it is normal to create ollama every function call, because it just has an address to requests
         log::info!("Generating response using `{}` model", CONFIG.ai_model);
         let ollama = Ollama::default();

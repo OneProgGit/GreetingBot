@@ -1,11 +1,3 @@
-//! Used for configuration stuff. Don't change config in runtime.
-//! # Examples
-//! Let's define `foo` in our config file equals to 5.
-//! ```
-//! let bar = config::CONFIG.foo;
-//! assert_eq!(bar, 5);
-//! ```
-
 use std::{env, path::Path, sync::LazyLock};
 
 use config::{Config, ConfigError, File};
@@ -35,7 +27,6 @@ pub static CONFIG: LazyLock<Configuration> = LazyLock::new(|| {
         .expect("Failed to load config")
 });
 
-/// Loads config from the path and deserializes it to Configuration struct
 pub fn load_config(path: &str) -> Result<Configuration, ConfigError> {
     Config::builder()
         .add_source(File::from(Path::new(path)))
@@ -45,7 +36,7 @@ pub fn load_config(path: &str) -> Result<Configuration, ConfigError> {
 
 #[cfg(test)]
 mod config_test {
-    use crate::config::load_config;
+    use crate::tools::config::load_config;
 
     #[test]
     fn test_load_config() {
