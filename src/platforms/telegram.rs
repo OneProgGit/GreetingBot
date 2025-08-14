@@ -53,7 +53,7 @@ impl Platform for Telegram {
                         .username()
                         .unwrap_or(&format!(
                             "user {}",
-                            msg.chat.first_name().unwrap_or("user").to_string()
+                            msg.chat.first_name().unwrap_or("user")
                         ))
                         .to_string(),
                 };

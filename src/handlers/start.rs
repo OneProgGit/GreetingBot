@@ -11,7 +11,7 @@ pub async fn handle_start(user: User) {
             user.id.clone()
         ),
     )
-    .await;
+    .await.expect("Failed to send message");
     DB.create_user(user)
         .expect("Error accessing to database");
 }
