@@ -16,6 +16,6 @@ draw_date_cron = ""
 draw_win_fmt = ""
 
 admin = 1
-draw_admin_fmt = ""
+draw_results_fmt = ""
 
 channel = 1

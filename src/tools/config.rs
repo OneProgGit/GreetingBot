@@ -17,7 +17,7 @@ pub struct Configuration {
     pub draw_date_cron: String,
     pub draw_win_fmt: String,
     pub admin: String,
-    pub draw_admin_fmt: String,
+    pub draw_results_fmt: String,
     pub channel: String,
 }
 

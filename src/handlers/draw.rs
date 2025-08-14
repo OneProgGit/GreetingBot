@@ -3,7 +3,6 @@ use rand::random_range;
 use crate::{DB, PLATFORM, models::user::User, tools::config::CONFIG};
 use string_format::string_format;
 
-#[tracing::instrument]
 pub async fn draw() {
     let users = DB.clone().get_users().expect("Error while getting users");
     let mut ind = random_range(0..users.len());
@@ -29,6 +28,8 @@ pub async fn draw() {
         .await
         .expect("Send message failed");
 
+    let results_fmt = &string_format!(CONFIG.draw_results_fmt.clone(), choice.username.clone());
+
     let admin = User {
         id: CONFIG.clone().admin,
         username: "admin".into(),
@@ -36,10 +37,18 @@ pub async fn draw() {
 
     PLATFORM
         .clone()
-        .send_message(
-            admin,
-            &string_format!(CONFIG.draw_admin_fmt.clone(), choice.username.clone()),
-        )
+        .send_message(admin, results_fmt)
+        .await
+        .expect("Send message failed");
+
+    let channel: User = User {
+        id: CONFIG.clone().channel,
+        username: "channel".into(),
+    };
+
+    PLATFORM
+        .clone()
+        .send_message(channel, results_fmt)
         .await
         .expect("Send message failed");
 }
