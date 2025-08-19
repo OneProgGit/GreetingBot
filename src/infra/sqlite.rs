@@ -6,6 +6,7 @@ use crate::{
 use rusqlite::{Connection, Result, params};
 use std::sync::{Arc, Mutex};
 
+/// TODO: Replace to SQL
 #[derive(Clone, Debug)]
 pub struct SqliteDb {
     db_conn: Arc<Mutex<Connection>>,
