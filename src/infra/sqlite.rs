@@ -1,4 +1,4 @@
-use sqlx::{Executor, SqlitePool, pool::PoolOptions, sqlite::SqlitePoolOptions};
+use sqlx::{Executor, SqlitePool, sqlite::SqlitePoolOptions};
 
 use crate::{
     infra::database::Database,
@@ -30,14 +30,14 @@ impl CreateAsync for SqliteDb {
 impl Database for SqliteDb {
     #[tracing::instrument]
     async fn create_user(&self, user: User) -> Res<()> {
-        // TODO: Fix it
+        // FIXME
         let pool = self.pool.lock().expect("Could not lock db_conn").clone();
         pool.execute(
             sqlx::query(
                 "INSERT INTO users (id, username)
-            VALUES (?1, ?2)
-            ON CONFLICT(id) DO UPDATE SET
-                username = excluded.username",
+                VALUES (?1, ?2)
+                ON CONFLICT(id) DO UPDATE SET
+                    username = excluded.username",
             )
             .bind(user.id)
             .bind(user.username),

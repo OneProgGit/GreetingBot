@@ -19,7 +19,7 @@ pub static PLATFORM: LazyLock<Arc<dyn Platform>> = LazyLock::new(|| Telegram::ne
 
 pub static DB: LazyLock<Arc<dyn Database>> = LazyLock::new({
     SqliteDb::new()
-        .await // TODO: Fix it
+        .await // FIXME
         .expect("Failed to connect to database")
 });
 
