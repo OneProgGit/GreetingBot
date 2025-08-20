@@ -1,23 +1,27 @@
+use sqlx::{Executor, SqlitePool, pool::PoolOptions, sqlite::SqlitePoolOptions};
+
 use crate::{
     infra::database::Database,
-    models::{traits::Create, types::Res, user::User},
+    models::{traits::CreateAsync, types::Res, user::User},
     tools::config::CONFIG,
 };
-use rusqlite::{Connection, Result, params};
+
 use std::sync::{Arc, Mutex};
 
-/// TODO: Replace to SQL
 #[derive(Clone, Debug)]
 pub struct SqliteDb {
-    db_conn: Arc<Mutex<Connection>>,
+    pool: Arc<Mutex<SqlitePool>>,
 }
 
-impl Create for SqliteDb {
+impl CreateAsync for SqliteDb {
     #[tracing::instrument]
-    fn new() -> Res<Arc<Self>> {
-        let conn = Connection::open(CONFIG.db_url.clone())?;
+    async fn new() -> Res<Arc<Self>> {
+        let pool = SqlitePoolOptions::new()
+            .max_connections(5)
+            .connect(&CONFIG.db_url)
+            .await?;
         let db = Self {
-            db_conn: Arc::new(Mutex::new(conn)),
+            pool: Arc::new(Mutex::new(pool)),
         };
         Ok(Arc::new(db))
     }
@@ -25,21 +29,26 @@ impl Create for SqliteDb {
 
 impl Database for SqliteDb {
     #[tracing::instrument]
-    fn create_user(&self, user: User) -> Res<()> {
-        let conn = self.db_conn.lock().expect("Could not lock db_conn");
-        conn.execute(
-            "INSERT INTO users (id, username)
+    async fn create_user(&self, user: User) -> Res<()> {
+        // TODO: Fix it
+        let pool = self.pool.lock().expect("Could not lock db_conn").clone();
+        pool.execute(
+            sqlx::query(
+                "INSERT INTO users (id, username)
             VALUES (?1, ?2)
             ON CONFLICT(id) DO UPDATE SET
                 username = excluded.username",
-            params![user.id, user.username],
-        )?;
+            )
+            .bind(user.id)
+            .bind(user.username),
+        )
+        .await?;
         Ok(())
     }
 
     #[tracing::instrument]
-    fn get_users(&self) -> Res<Vec<User>> {
-        let conn = self.db_conn.lock().expect("Could not lock db_conn");
+    async fn get_users(&self) -> Res<Vec<User>> {
+        let conn = self.pool.lock().expect("Could not lock db_conn");
         let mut stmt = conn.prepare("SELECT id, username FROM users")?;
         let user_iter = stmt.query_map([], |row| {
             Ok(User {

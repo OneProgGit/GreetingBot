@@ -4,7 +4,7 @@ use crate::{
         ai::AiProvider, database::Database, ollama::OllamaAi, sqlite::SqliteDb,
         weather::WeatherHandler, wttr_in::WttrInWetherHandler,
     },
-    models::traits::Create,
+    models::traits::{Create, CreateAsync},
     platforms::{platform::Platform, telegram::Telegram},
 };
 use std::sync::{Arc, LazyLock};
@@ -17,8 +17,11 @@ mod tools;
 
 pub static PLATFORM: LazyLock<Arc<dyn Platform>> = LazyLock::new(|| Telegram::new().unwrap());
 
-pub static DB: LazyLock<Arc<dyn Database>> =
-    LazyLock::new(|| SqliteDb::new().expect("Failed to connect to database"));
+pub static DB: LazyLock<Arc<dyn Database>> = LazyLock::new({
+    SqliteDb::new()
+        .await // TODO: Fix it
+        .expect("Failed to connect to database")
+});
 
 pub static AI: LazyLock<Arc<dyn AiProvider>> = LazyLock::new(|| OllamaAi::new().unwrap());
 
