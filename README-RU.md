@@ -8,7 +8,11 @@
 <img width="1239" height="977" alt="greeting_bot_in_action" src="https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c" />
 
 ## Начало работы
-Клонируйте репозиторий git (убедитесь, что вы установили git): 
+Убедитесь, что git установлен ([как установить git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)):
+```bash
+git --version
+```
+Клонируйте репозиторий git: 
 ```bash
 git clone https://github.com/OneProgGit/GreetingBot/
 ```
