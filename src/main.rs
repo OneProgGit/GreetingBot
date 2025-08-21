@@ -3,7 +3,9 @@ use std::sync::{Arc, OnceLock};
 use crate::{
     ai_mod::{ai::Ai, ollama_ai::OllamaAi},
     db_mod::{database::Database, sqlite_database::SqliteDatabase},
-    handlers_mod::{commands::bind_all_commands, scheduler::schedule_all_tasks},
+    handlers_mod::{
+        bind_commands_handler::bind_all_commands, scheduler_handler::schedule_all_tasks,
+    },
     platforms_mod::{platform::Platform, telegram_platform::TelegramPlatform},
     traits_mod::create_traits::{Create, CreateAsync},
     weather_mod::{weather::Weather, wttr_in_weather::WttrInWeather},

@@ -42,7 +42,7 @@ pub fn format_datetime_russian(dt: NaiveDateTime) -> String {
 mod date_tests {
     use chrono::NaiveDate;
 
-    use crate::handlers_mod::date::format_datetime_russian;
+    use crate::handlers_mod::date_handler::format_datetime_russian;
 
     #[test]
     fn test_format_datetime_russian() {

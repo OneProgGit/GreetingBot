@@ -1,6 +1,6 @@
 use crate::{
     AI, DB, PLATFORM, WEATHER,
-    handlers_mod::{date::format_datetime_russian, formats::weather_to_emoji},
+    handlers_mod::{date_handler::format_datetime_russian, formats_handler::weather_to_emoji},
     models_mod::user_model::UserModel,
     tools_mod::config_tools::CONFIG,
 };
@@ -38,7 +38,7 @@ async fn process_user(user: UserModel, weather: String) {
 }
 
 #[tracing::instrument]
-pub async fn daily_message() {
+pub async fn handle_daily_message() {
     let weather_struct = WEATHER
         .get()
         .expect("Failed to get weather instance")

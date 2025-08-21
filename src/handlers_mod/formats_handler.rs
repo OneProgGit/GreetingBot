@@ -30,7 +30,7 @@ pub fn weather_to_emoji(desc: &str) -> String {
 
 #[cfg(test)]
 mod weather_tests {
-    use crate::handlers_mod::formats::weather_to_emoji;
+    use crate::handlers_mod::formats_handler::weather_to_emoji;
 
     #[test]
     fn test_weather_emoji_one_condition_lowercase() {

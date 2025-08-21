@@ -3,7 +3,7 @@ use rand::random_range;
 use crate::{DB, PLATFORM, models_mod::user_model::UserModel, tools_mod::config_tools::CONFIG};
 use string_format::string_format;
 
-pub async fn draw() {
+pub async fn handle_draw() {
     let users = DB
         .get()
         .expect("Failed to get DB instance")
