@@ -8,7 +8,14 @@
 <img width="1239" height="977" alt="greeting_bot_in_action" src="https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c" />
 
 ## Начало работы
-Клонируйте репозиторий git (убедитесь, что вы установили git): <pre>```https://github.com/OneProgGit/GreetingBot/```</pre>
+Клонируйте репозиторий git (убедитесь, что вы установили git): 
+```
+git clone https://github.com/OneProgGit/GreetingBot/
+```
+Перейдите в директорию проекта:
+```
+cd GreetingBot
+```
 Создайте конфигурационный файл и заполните следующим образом ([про cron](https://en.wikipedia.org/wiki/Cron)):
 ```toml
 weather_url = "" # Адрес провайдера погоды
