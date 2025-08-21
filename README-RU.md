@@ -1,26 +1,36 @@
 # Приветственный бот (он же МяуБот)
+
 [English version](README.md)
 
 МяуБот - бот, присылающий каждому пользователю из базы данных сообщение, сгенерированное ИИ.
 У него модульная архитектура (начиная с версии 0.6.0), которая позволяет вам выбрать провайдера базы данных, погоды, ИИ или платформы, либо создать свою собственную.
 
 ## МяуБот в действии
-<img width="1239" height="977" alt="greeting_bot_in_action" src="https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c" />
+
+![МяуБот в действии]"(<https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c>")
 
 ## Начало работы
+
 Убедитесь, что git установлен ([как установить git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)):
+
 ```bash
 git --version
 ```
-Клонируйте репозиторий git: 
+
+Клонируйте репозиторий git:
+
 ```bash
 git clone https://github.com/OneProgGit/GreetingBot/
 ```
+
 Перейдите в директорию проекта:
+
 ```bash
 cd GreetingBot
 ```
+
 Создайте конфигурационный файл и заполните следующим образом ([про cron](https://en.wikipedia.org/wiki/Cron)):
+
 ```toml
 weather_url = "" # Адрес провайдера погоды
 weather_fmt = "" # Формат погоды в приветственном сообщении
@@ -44,20 +54,27 @@ draw_results_fmt = "" # Формат сообщения, которое высы
 
 channel = "" # Айди канала или чата
 ```
+
 Создайте файл .env и заполните следующим образом:
+
 ```env
 TELOXIDE_TOKEN = "" # Токен вашего telegram-бота, если целевая платформа соответствующая
 CONFIG_PATH = "" # Путь к конфигурационному файлу из предыдущего шага
 ```
+
 Убедитесь, что Rust установлен ([как установить Rust](https://rustup.rs/)):
+
 ```bash
 cargo --version
 rustc --version
 ```
+
 Выполните следующую команду:
+
 ```bash
 cargo run --release
 ```
+
 Теперь бот работает!
 
 _Для дальнейшего ознакомления с МяуБотом рекомендуем посмотреть [документацию](https://github.com/OneProgGit/GreetingBot/wiki)._
