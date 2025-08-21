@@ -59,3 +59,5 @@ rustc --version
 cargo run --release
 ```
 Теперь бот работает!
+
+_Для дальнейшего ознакомления с МяуБотом рекомендуем посмотреть [документацию](https://github.com/OneProgGit/GreetingBot/wiki)._
