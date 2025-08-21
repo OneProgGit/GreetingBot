@@ -8,7 +8,11 @@ It has modular architecture (since 0.6.0), which allows you to choose database, 
 <img width="1239" height="977" alt="greeting_bot_in_action" src="https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c" />
 
 ## Getting started
-Clone git repo (make sure git installed): 
+Make sure git installed ([how to install git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)):
+```bash
+git --version
+```
+Clone git repo: 
 ```bash
 git clone https://github.com/OneProgGit/GreetingBot/
 ```
