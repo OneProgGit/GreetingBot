@@ -5,7 +5,7 @@ use regex::Regex;
 use string_format::string_format;
 
 use crate::{
-    ai_mod::ai::Ai, tools_mod::config_tools::CONFIG, traits_mod::create_traits::Create,
+    ai_mod::ai::AiModule, tools_mod::config_tools::CONFIG, traits_mod::create_traits::Create,
     types_mod::result_types::Res,
 };
 
@@ -28,7 +28,7 @@ impl Create for OllamaAi {
 }
 
 #[async_trait::async_trait]
-impl Ai for OllamaAi {
+impl AiModule for OllamaAi {
     #[tracing::instrument]
     async fn process(&self, weather: String) -> Res<String> {
         // Note: it is normal to create ollama every function call, because it just has an address to requests

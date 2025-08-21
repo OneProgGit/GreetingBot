@@ -5,7 +5,8 @@ use serde::Deserialize;
 
 use crate::{
     models_mod::weather_model::WeatherModel, tools_mod::config_tools::CONFIG,
-    traits_mod::create_traits::Create, types_mod::result_types::Res, weather_mod::weather::Weather,
+    traits_mod::create_traits::Create, types_mod::result_types::Res,
+    weather_mod::weather::WeatherModule,
 };
 
 #[derive(Debug, Deserialize)]
@@ -52,9 +53,9 @@ impl Create for WttrInWeather {
 }
 
 #[async_trait::async_trait]
-impl Weather for WttrInWeather {
+impl WeatherModule for WttrInWeather {
     #[tracing::instrument]
-    async fn get_weather(&self) -> Result<WeatherModel, Box<dyn Error>> {
+    async fn get_weather(&self) -> Res<WeatherModel> {
         let client = Client::new();
         let result = client
             .get(CONFIG.weather_url.clone())

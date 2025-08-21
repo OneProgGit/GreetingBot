@@ -1,14 +1,14 @@
 use std::sync::{Arc, OnceLock};
 
 use crate::{
-    ai_mod::{ai::Ai, ollama_ai::OllamaAi},
-    db_mod::{database::Database, sqlite_database::SqliteDatabase},
+    ai_mod::{ai::AiModule, ollama_ai::OllamaAi},
+    db_mod::{database::DatabaseModule, sqlite_database::SqliteDatabase},
     handlers_mod::{
         bind_commands_handler::bind_all_commands, scheduler_handler::schedule_all_tasks,
     },
-    platforms_mod::{platform::Platform, telegram_platform::TelegramPlatform},
+    platforms_mod::{platform::PlatformModule, telegram_platform::TelegramPlatform},
     traits_mod::create_traits::{Create, CreateAsync},
-    weather_mod::{weather::Weather, wttr_in_weather::WttrInWeather},
+    weather_mod::{weather::WeatherModule, wttr_in_weather::WttrInWeather},
 };
 
 mod ai_mod;
@@ -21,10 +21,10 @@ mod traits_mod;
 mod types_mod;
 mod weather_mod;
 
-pub static PLATFORM: OnceLock<Arc<dyn Platform>> = OnceLock::new();
-pub static DB: OnceLock<Arc<dyn Database>> = OnceLock::new();
-pub static AI: OnceLock<Arc<dyn Ai>> = OnceLock::new();
-pub static WEATHER: OnceLock<Arc<dyn Weather>> = OnceLock::new();
+pub static PLATFORM: OnceLock<Arc<dyn PlatformModule>> = OnceLock::new();
+pub static DB: OnceLock<Arc<dyn DatabaseModule>> = OnceLock::new();
+pub static AI: OnceLock<Arc<dyn AiModule>> = OnceLock::new();
+pub static WEATHER: OnceLock<Arc<dyn WeatherModule>> = OnceLock::new();
 
 #[tracing::instrument]
 #[tokio::main]

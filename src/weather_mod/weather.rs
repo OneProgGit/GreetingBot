@@ -1,8 +1,11 @@
-use std::{error::Error, fmt::Debug};
+use std::fmt::Debug;
 
-use crate::{models_mod::weather_model::WeatherModel, traits_mod::create_traits::Create};
+use crate::{
+    models_mod::weather_model::WeatherModel, traits_mod::create_traits::Create,
+    types_mod::result_types::Res,
+};
 
 #[async_trait::async_trait]
-pub trait Weather: Send + Sync + Create + Debug {
-    async fn get_weather(&self) -> Result<WeatherModel, Box<dyn Error>>;
+pub trait WeatherModule: Send + Sync + Create + Debug {
+    async fn get_weather(&self) -> Res<WeatherModel>;
 }

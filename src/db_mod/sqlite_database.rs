@@ -1,8 +1,9 @@
 use sqlx::{Row, SqlitePool, sqlite::SqlitePoolOptions};
 
 use crate::{
-    db_mod::database::Database, models_mod::user_model::UserModel, tools_mod::config_tools::CONFIG,
-    traits_mod::create_traits::CreateAsync, types_mod::result_types::Res,
+    db_mod::database::DatabaseModule, models_mod::user_model::UserModel,
+    tools_mod::config_tools::CONFIG, traits_mod::create_traits::CreateAsync,
+    types_mod::result_types::Res,
 };
 
 use std::sync::Arc;
@@ -28,7 +29,7 @@ impl CreateAsync for SqliteDatabase {
 }
 
 #[async_trait::async_trait]
-impl Database for SqliteDatabase {
+impl DatabaseModule for SqliteDatabase {
     #[tracing::instrument]
     async fn create_user(&self, user: UserModel) -> Res<()> {
         sqlx::query(

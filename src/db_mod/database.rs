@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[async_trait::async_trait]
-pub trait Database: Send + Sync + CreateAsync + Debug {
+pub trait DatabaseModule: Send + Sync + CreateAsync + Debug {
     async fn create_user(&self, user: UserModel) -> Res<()>;
     async fn get_users(&self) -> Res<Vec<UserModel>>;
 }

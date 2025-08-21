@@ -10,7 +10,7 @@ use tokio::sync::Mutex;
 
 use crate::{
     models_mod::user_model::UserModel,
-    platforms_mod::platform::{Handler, Platform},
+    platforms_mod::platform::{Handler, PlatformModule},
     traits_mod::create_traits::Create,
     types_mod::result_types::Res,
 };
@@ -48,7 +48,7 @@ impl Create for TelegramPlatform {
 }
 
 #[async_trait::async_trait]
-impl Platform for TelegramPlatform {
+impl PlatformModule for TelegramPlatform {
     #[tracing::instrument]
     async fn run(self: Arc<Self>) {
         let tg = Arc::clone(&self);
