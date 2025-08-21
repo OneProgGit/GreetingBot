@@ -8,7 +8,14 @@ It has modular architecture (since 0.6.0), which allows you to choose database, 
 <img width="1239" height="977" alt="greeting_bot_in_action" src="https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c" />
 
 ## Getting started
-Clone git repo (make sure git installed): <pre>```https://github.com/OneProgGit/GreetingBot/```</pre>
+Clone git repo (make sure git installed): 
+```bash
+git clone https://github.com/OneProgGit/GreetingBot/
+```
+Cd into the project folder:
+```bash
+cd GreetingBot
+```
 Create your config file and fill it like that ([about cron](https://en.wikipedia.org/wiki/Cron)):
 ```toml
 weather_url = "" # Url to weather provider
@@ -43,7 +50,7 @@ Make sure Rust installed ([how to install Rust](https://rustup.rs/)):
 cargo --version
 rustc --version
 ```
-Run this command in the root of project:
+Run this command:
 ```bash
 cargo run --release
 ```
