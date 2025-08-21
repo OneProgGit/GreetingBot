@@ -1,39 +1,60 @@
+use std::sync::{Arc, OnceLock};
+
 use crate::{
-    handlers::{commands::bind_all_commands, scheduler::schedule_all_tasks},
-    infra::{
-        ai::AiProvider, database::Database, ollama::OllamaAi, sqlite::SqliteDb,
-        weather::WeatherHandler, wttr_in::WttrInWetherHandler,
-    },
-    models::traits::{Create, CreateAsync},
-    platforms::{platform::Platform, telegram::Telegram},
+    ai_mod::{ai::Ai, ollama_ai::OllamaAi},
+    db_mod::{database::Database, sqlite_database::SqliteDatabase},
+    handlers_mod::{commands::bind_all_commands, scheduler::schedule_all_tasks},
+    platforms_mod::{platform::Platform, telegram_platform::TelegramPlatform},
+    traits_mod::create_traits::{Create, CreateAsync},
+    weather_mod::{weather::Weather, wttr_in_weather::WttrInWeather},
 };
-use std::sync::{Arc, LazyLock};
 
-mod handlers;
-mod infra;
-mod models;
-mod platforms;
-mod tools;
+mod ai_mod;
+mod db_mod;
+mod handlers_mod;
+mod models_mod;
+mod platforms_mod;
+mod tools_mod;
+mod traits_mod;
+mod types_mod;
+mod weather_mod;
 
-pub static PLATFORM: LazyLock<Arc<dyn Platform>> = LazyLock::new(|| Telegram::new().unwrap());
-
-pub static DB: LazyLock<Arc<dyn Database>> = LazyLock::new({
-    SqliteDb::new()
-        .await // FIXME
-        .expect("Failed to connect to database")
-});
-
-pub static AI: LazyLock<Arc<dyn AiProvider>> = LazyLock::new(|| OllamaAi::new().unwrap());
-
-pub static WEATHER: LazyLock<Arc<dyn WeatherHandler>> =
-    LazyLock::new(|| WttrInWetherHandler::new().unwrap());
+pub static PLATFORM: OnceLock<Arc<dyn Platform>> = OnceLock::new();
+pub static DB: OnceLock<Arc<dyn Database>> = OnceLock::new();
+pub static AI: OnceLock<Arc<dyn Ai>> = OnceLock::new();
+pub static WEATHER: OnceLock<Arc<dyn Weather>> = OnceLock::new();
 
 #[tracing::instrument]
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
     tracing_subscriber::fmt::init();
+
+    PLATFORM
+        .set(TelegramPlatform::new().expect("Failed to initialize platform"))
+        .expect("Failed to set platform");
+
+    DB.set(
+        SqliteDatabase::new()
+            .await
+            .expect("Failed to initialize database"),
+    )
+    .expect("Failed to set database");
+
+    AI.set(OllamaAi::new().expect("Failed to initialize AI"))
+        .expect("Failed to set AI");
+
+    WEATHER
+        .set(WttrInWeather::new().expect("Failed to initialize weather"))
+        .expect("Failed to set weather");
+
     bind_all_commands().await;
     schedule_all_tasks().await;
-    PLATFORM.clone().run().await;
+
+    PLATFORM
+        .get()
+        .expect("Failed to get platform instance")
+        .clone()
+        .run()
+        .await;
 }
