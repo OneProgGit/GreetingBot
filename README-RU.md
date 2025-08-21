@@ -9,11 +9,11 @@
 
 ## Начало работы
 Клонируйте репозиторий git (убедитесь, что вы установили git): 
-```
+```bash
 git clone https://github.com/OneProgGit/GreetingBot/
 ```
 Перейдите в директорию проекта:
-```
+```bash
 cd GreetingBot
 ```
 Создайте конфигурационный файл и заполните следующим образом ([про cron](https://en.wikipedia.org/wiki/Cron)):
