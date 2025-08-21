@@ -7,7 +7,7 @@ It has modular architecture (since 0.6.0), which allows you to choose database, 
 
 ## Greeting Bot in action
 
-![Greeting Bot in action](https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c>)
+![Greeting Bot in action](https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c)
 
 ## Getting started
 
