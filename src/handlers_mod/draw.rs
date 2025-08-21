@@ -21,9 +21,7 @@ pub async fn draw() {
         ind = random_range(0..users.len());
         choice = &users[ind];
         it += 1;
-        if it == 10000000 {
-            panic!("Unluckly, can't choose the winner");
-        }
+        assert!(it != 10_000_000, "Unluckly, can't choose the winner");
     }
 
     let platform = PLATFORM

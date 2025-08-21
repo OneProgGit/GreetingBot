@@ -15,7 +15,7 @@ async fn process_user(user: UserModel, weather: String) {
         .clone()
         .process(weather.clone())
         .await
-        .unwrap_or(CONFIG.ai_msg_off.clone());
+        .unwrap_or_else(|_| CONFIG.ai_msg_off.clone());
 
     let now = Utc::now();
 

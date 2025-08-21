@@ -19,7 +19,7 @@ jobs:
     - name: Format
       run: cargo fmt --verbose
     - name: Lint
-      run: cargo clippy --verbose
+      run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all -D clippy::pedantic -D clippy::nursery --verbose
     - name: Build
       run: cargo build --verbose
     - name: Run tests

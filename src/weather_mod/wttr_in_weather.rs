@@ -47,7 +47,7 @@ pub struct WttrInWeather;
 impl Create for WttrInWeather {
     #[tracing::instrument]
     fn new() -> Res<Arc<Self>> {
-        Ok(Arc::new(WttrInWeather))
+        Ok(Arc::new(Self))
     }
 }
 

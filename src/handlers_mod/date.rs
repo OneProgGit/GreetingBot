@@ -53,6 +53,6 @@ mod date_tests {
         assert_eq!(
             format_datetime_russian(date),
             "четверг, 15 января 2026 года, 06:01"
-        )
+        );
     }
 }

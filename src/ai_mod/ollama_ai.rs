@@ -23,7 +23,7 @@ impl OllamaAi {
 impl Create for OllamaAi {
     #[tracing::instrument]
     fn new() -> Res<Arc<Self>> {
-        Ok(Arc::new(OllamaAi))
+        Ok(Arc::new(Self))
     }
 }
 
