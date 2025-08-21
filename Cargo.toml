@@ -15,7 +15,7 @@ serde_json = "*"
 string_format = "*"
 config = "*"
 ollama-rs = "*"
-sqlx = { version = "*", features = ["sqlite"] }
+sqlx = { version = "*", features = ["sqlite", "runtime-tokio"] }
 rand = "*"
 cron_tab = { version = "*", features = ["sync", "async"] }
 regex = "*"
