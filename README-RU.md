@@ -7,7 +7,7 @@
 
 ## МяуБот в действии
 
-![МяуБот в действии]"(<https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c>")
+![МяуБот в действии](https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c)
 
 ## Начало работы
 
