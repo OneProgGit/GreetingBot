@@ -60,6 +60,7 @@ Create .env and fill these fields:
 ```env
 TELOXIDE_TOKEN = "" # Token of your telegram bot, if the target platform is so
 CONFIG_PATH = "" # Path to the config from previous step
+RUST_LOG = "" # Log level, for example, `DEBUG`
 ```
 
 Make sure Rust installed ([how to install Rust](https://rustup.rs/)):
