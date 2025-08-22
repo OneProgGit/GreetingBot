@@ -1,3 +1,10 @@
+#![deny(warnings)]
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::nursery)]
+#![deny(clippy::cargo)]
+#![deny(rustdoc::all)]
+
 use std::sync::{Arc, OnceLock};
 
 use crate::{

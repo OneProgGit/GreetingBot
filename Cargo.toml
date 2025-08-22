@@ -2,6 +2,11 @@
 name = "greeting"
 version = "0.7.0-beta1"
 edition = "2024"
+description = "Greeting Bot is a Telegram bot, which sends a message to all users in database with AI-generated text."
+license-file = "LICENSE"
+repository = "https://github.com/OneProgGit/GreetingBot"
+keywords = ["telegram", "bot", "ai"]
+categories = ["api-bindings"]
 
 [dependencies]
 chrono = "*"
