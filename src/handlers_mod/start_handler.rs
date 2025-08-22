@@ -17,6 +17,7 @@ pub async fn handle_start(user: UserModel) {
         )
         .await
         .expect("Failed to send message");
+
     DB.get()
         .expect("Failed to get DB instance")
         .create_user(user)
