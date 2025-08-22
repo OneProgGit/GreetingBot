@@ -93,7 +93,6 @@ pub static WEATHER: OnceLock<Arc<dyn WeatherModule>> = OnceLock::new();
 
 #[tracing::instrument]
 #[tokio::main]
-/// `MeowBot` entry point. It sets all static variables, binds commands, schedules tasks and runs bot.
 async fn main() {
     dotenvy::dotenv().ok();
     tracing_subscriber::fmt::init();
