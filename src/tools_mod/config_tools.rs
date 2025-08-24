@@ -36,12 +36,24 @@ pub fn load_config(path: &str) -> Result<Config, ConfigError> {
 
 #[cfg(test)]
 mod config_test {
-    use crate::tools_mod::config_tools::load_config;
+    use crate::tools_mod::config_tools::{CONFIG, load_config};
 
     #[test]
     fn test_load_config() {
         let path = "test.toml";
         let res = load_config(path).expect("Failed to load config");
         assert_eq!(res.start_fmt, "Hello world!");
+    }
+
+    #[test]
+    fn test_load_config_bad_path() {
+        let path = "bad.toml";
+        let res = load_config(path);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_config_loading_correctly() {
+        println!("{CONFIG:?}");
     }
 }
