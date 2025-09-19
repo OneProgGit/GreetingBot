@@ -91,6 +91,8 @@ pub static AI: OnceLock<Arc<dyn AiModule>> = OnceLock::new();
 /// ```
 pub static WEATHER: OnceLock<Arc<dyn WeatherModule>> = OnceLock::new();
 
+// Comment to tesh cahying
+
 #[tracing::instrument]
 #[tokio::main]
 async fn main() {
