@@ -12,26 +12,13 @@
 
 use std::sync::{Arc, OnceLock};
 
-use crate::{
-    ai_mod::{ai::AiModule, ollama_ai::OllamaAi},
-    db_mod::{database::DatabaseModule, sqlite_database::SqliteDatabase},
-    handlers_mod::{
-        bind_commands_handler::bind_all_commands, scheduler_handler::schedule_all_tasks,
-    },
-    platforms_mod::{platform::PlatformModule, telegram_platform::TelegramPlatform},
-    traits_mod::create_traits::{Create, CreateAsync},
-    weather_mod::{weather::WeatherModule, wttr_in_weather::WttrInWeather},
-};
-
-mod ai_mod;
-mod db_mod;
-mod handlers_mod;
-mod models_mod;
-mod platforms_mod;
-mod tools_mod;
-mod traits_mod;
-mod types_mod;
-mod weather_mod;
+mod ai;
+mod db;
+mod handlers;
+mod platforms;
+mod tools;
+mod traits;
+mod weather;
 
 /// Platform module allows you send messages to users and bind commands.
 /// # Example
@@ -90,8 +77,6 @@ pub static AI: OnceLock<Arc<dyn AiModule>> = OnceLock::new();
 /// println!("Today's wind speed: {}km/h", weather.wind_speed_kmph);
 /// ```
 pub static WEATHER: OnceLock<Arc<dyn WeatherModule>> = OnceLock::new();
-
-// Comment to tesh cahying
 
 #[tracing::instrument]
 #[tokio::main]

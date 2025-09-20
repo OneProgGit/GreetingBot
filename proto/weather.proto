@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package weather;
+
+import "google/protobuf/empty.proto";
+
+service Weather {
+  rpc GetWeather(google.protobuf.Empty) returns (WeatherModel);
+}
+
+message WeatherModel {
+  string temp_c = 1;
+  string feels_like_c = 2;
+  string wind_speed_kmph = 3;
+  string min_temp_c = 4;
+  string max_temp_c = 5;
+  string status = 6;
+}

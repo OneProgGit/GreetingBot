@@ -1,4 +1,3 @@
-weather_url = ""
 weather_fmt = ""
 
 ai_model = ""

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package db;
+
+import "google/protobuf/empty.proto";
+
+service Db {
+  rpc Run(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc SendMessage(google.protobuf.Empty) returns (UsersList);
+  rpc BindCommand(string) returns (google.protobuf.Empty);
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+}

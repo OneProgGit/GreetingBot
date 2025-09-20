@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package ai;
+
+service Ai { rpc GetResponse(AiRequest) returns (AiResponse); }
+
+message AiRequest { string weather = 1; }
+
+message AiResponse { string response = 1; }
