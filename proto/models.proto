@@ -6,3 +6,5 @@ message User {
   string id = 1;
   string username = 2;
 }
+
+message UsersList { repeated User users = 1; }

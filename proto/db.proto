@@ -9,5 +9,3 @@ service Db {
   rpc CreateUser(User) returns (google.protobuf.Empty);
   rpc GetUsers(google.protobuf.Empty) returns (UsersList);
 }
-
-message UsersList { repeated User users = 1; }

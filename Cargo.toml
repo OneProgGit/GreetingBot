@@ -28,9 +28,14 @@ async-trait = "0.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tonic = "0.14.2"
+prost = "0.14.1"
+prost-types = "0.14.1"
 
 [profile.release]
 opt-level = 3
 lto = "fat"
 codegen-units = 1
 strip = "symbols"
+
+[build-dependencies]
+tonic-prost-build = "0.14.2"

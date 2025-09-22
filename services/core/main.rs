@@ -12,13 +12,8 @@
 
 use std::sync::{Arc, OnceLock};
 
-mod ai;
-mod db;
 mod handlers;
-mod platforms;
 mod tools;
-mod traits;
-mod weather;
 
 /// Platform module allows you send messages to users and bind commands.
 /// # Example
