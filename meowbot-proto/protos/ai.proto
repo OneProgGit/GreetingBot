@@ -4,6 +4,6 @@ package ai;
 
 service Ai { rpc GetResponse(AiRequest) returns (AiResponse); }
 
-message AiRequest { string weather = 1; }
+message AiRequest { string weather = 1; string prompt = 2; }
 
 message AiResponse { string response = 1; }

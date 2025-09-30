@@ -32,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config_path = env::var("CONFIG_PATH").expect("CONFIG_PATH must be set!");
     let config = load_config(&config_path).expect("Failed to load config");
 
-    let mut app = App::new(
+    let app = App::new(
         ai_client,
         db_client,
         platform_client,
@@ -40,8 +40,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config,
     );
 
-    app.bind_all_commands();
-    app.schedule_all_tasks();
+    app.clone().bind_all_commands().await;
+    app.schedule_all_tasks().await;
 
     Ok(())
 }

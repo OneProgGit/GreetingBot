@@ -355,6 +355,13 @@ pub mod db_server {
     }
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct NewMessage {
+    #[prost(message, optional, tag = "1")]
+    pub user: ::core::option::Option<super::models::User>,
+    #[prost(string, tag = "2")]
+    pub text: ::prost::alloc::string::String,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Command {
     #[prost(string, tag = "1")]
     pub text: ::prost::alloc::string::String,
@@ -450,31 +457,10 @@ pub mod platform_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn run(
-            &mut self,
-            request: impl tonic::IntoRequest<()>,
-        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::unknown(
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic_prost::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/db.Platform/Run");
-            let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("db.Platform", "Run"));
-            self.inner.unary(req, path, codec).await
-        }
         pub async fn send_message(
             &mut self,
-            request: impl tonic::IntoRequest<()>,
-        ) -> std::result::Result<
-            tonic::Response<super::super::models::UsersList>,
-            tonic::Status,
-        > {
+            request: impl tonic::IntoRequest<super::NewMessage>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -525,17 +511,10 @@ pub mod platform_server {
     /// Generated trait containing gRPC methods that should be implemented for use with PlatformServer.
     #[async_trait]
     pub trait Platform: std::marker::Send + std::marker::Sync + 'static {
-        async fn run(
-            &self,
-            request: tonic::Request<()>,
-        ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
         async fn send_message(
             &self,
-            request: tonic::Request<()>,
-        ) -> std::result::Result<
-            tonic::Response<super::super::models::UsersList>,
-            tonic::Status,
-        >;
+            request: tonic::Request<super::NewMessage>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
         async fn bind_start_command(
             &self,
             request: tonic::Request<super::Command>,
@@ -617,56 +596,20 @@ pub mod platform_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/db.Platform/Run" => {
+                "/db.Platform/SendMessage" => {
                     #[allow(non_camel_case_types)]
-                    struct RunSvc<T: Platform>(pub Arc<T>);
-                    impl<T: Platform> tonic::server::UnaryService<()> for RunSvc<T> {
+                    struct SendMessageSvc<T: Platform>(pub Arc<T>);
+                    impl<T: Platform> tonic::server::UnaryService<super::NewMessage>
+                    for SendMessageSvc<T> {
                         type Response = ();
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
-                        fn call(&mut self, request: tonic::Request<()>) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Platform>::run(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = RunSvc(inner);
-                        let codec = tonic_prost::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/db.Platform/SendMessage" => {
-                    #[allow(non_camel_case_types)]
-                    struct SendMessageSvc<T: Platform>(pub Arc<T>);
-                    impl<T: Platform> tonic::server::UnaryService<()>
-                    for SendMessageSvc<T> {
-                        type Response = super::super::models::UsersList;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(&mut self, request: tonic::Request<()>) -> Self::Future {
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::NewMessage>,
+                        ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 <T as Platform>::send_message(&inner, request).await
