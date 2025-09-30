@@ -2,3 +2,5 @@
 .env
 config.toml
 greeting_db.db
+.vscode
+.zed

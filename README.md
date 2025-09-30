@@ -32,10 +32,8 @@ cd GreetingBot
 Create your config file and fill it like that ([about cron](https://en.wikipedia.org/wiki/Cron)):
 
 ```toml
-weather_url = "" # Url to weather provider
 weather_fmt = "" # Weather format in greeting message
 
-ai_model = "" # Ai model name (example: `qwen3:30b`)
 ai_prompt = "" # Ai model prompt
 ai_msg_off = "" # Message which appears when cannot connect to AI provider
 
