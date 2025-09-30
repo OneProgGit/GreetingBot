@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package db;
+
+import "google/protobuf/empty.proto";
+import "models.proto";
+
+service Platform {
+  rpc Run(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc SendMessage(google.protobuf.Empty) returns (models.UsersList);
+  rpc BindCommand(Command) returns (google.protobuf.Empty);
+}
+
+message Command {
+  string text = 1;
+}

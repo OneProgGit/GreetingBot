@@ -1,0 +1,9 @@
+[package]
+name = "meowbot-ai"
+version = "0.7.0"
+edition = "2024"
+
+[dependencies]
+
+[lints]
+workspace = true

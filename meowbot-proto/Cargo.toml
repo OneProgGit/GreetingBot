@@ -1,0 +1,12 @@
+[package]
+name = "meowbot-proto"
+version = "0.7.0"
+edition = "2024"
+
+[dependencies]
+
+[lints]
+workspace = true
+
+[build-dependencies]
+tonic-prost-build = "0.14.2"

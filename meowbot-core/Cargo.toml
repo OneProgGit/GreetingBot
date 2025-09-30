@@ -1,0 +1,13 @@
+[package]
+name = "meowbot-core"
+version = "0.7.0"
+edition = "2024"
+
+[dependencies]
+meowbot-proto = { version = "0.7.0", path = "../meowbot-proto" }
+prost = "0.14.1"
+prost-types = "0.14.1"
+tonic = "0.14.2"
+
+[lints]
+workspace = true
