@@ -12,7 +12,6 @@ use crate::{app::App, config::load_config};
 mod app;
 mod config;
 mod formats;
-mod commands_handler;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

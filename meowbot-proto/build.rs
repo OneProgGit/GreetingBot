@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "protos/db.proto",
                 "protos/platform.proto",
                 "protos/weather.proto",
-                "protos/commands.proto"
+                "protos/commands.proto",
             ],
             &["protos"],
         )?;
