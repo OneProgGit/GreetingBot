@@ -4,6 +4,7 @@ version = "0.7.0"
 edition = "2024"
 
 [dependencies]
+ollama-rs = "0.3.2"
 
 [lints]
 workspace = true

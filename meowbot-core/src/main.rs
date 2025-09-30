@@ -1,11 +1,13 @@
-use std::env;
+use std::{env, sync::Arc};
 
 use dotenvy::dotenv;
 use meowbot_proto::generated::{
     ai::ai_client::AiClient,
+    commands::command_handler_server::CommandHandlerServer,
     db::{db_client::DbClient, platform_client::PlatformClient},
     weather::weather_client::WeatherClient,
 };
+use tonic::transport::Server;
 
 use crate::{app::App, config::load_config};
 
@@ -40,8 +42,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config,
     );
 
-    app.clone().bind_all_commands().await;
-    app.schedule_all_tasks().await;
+    let arc_app = Arc::new(app.clone());
+
+    arc_app.clone().bind_all_commands().await;
+    arc_app.schedule_all_tasks().await;
+
+    let commands_addr = env::var("COMMANDS_ADDR").expect("COMMANDS_ADDR must be set!");
+
+    Server::builder()
+        .add_service(CommandHandlerServer::new(app))
+        .serve(commands_addr.parse()?)
+        .await?;
 
     Ok(())
 }

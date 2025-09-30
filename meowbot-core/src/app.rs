@@ -18,6 +18,7 @@ use crate::{
 };
 use string_format::string_format;
 
+#[derive(Clone)]
 pub struct App {
     ai_client: AiClient<Channel>,
     db_client: DbClient<Channel>,
@@ -57,14 +58,14 @@ impl App {
         platform_client: PlatformClient<Channel>,
         weather_client: WeatherClient<Channel>,
         config: Configuration,
-    ) -> Arc<Self> {
-        Arc::new(Self {
+    ) -> Self {
+        Self {
             ai_client,
             db_client,
             platform_client,
             weather_client,
             config,
-        })
+        }
     }
 
     pub async fn bind_all_commands(self: Arc<Self>) {
