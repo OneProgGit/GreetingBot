@@ -3,13 +3,10 @@ use std::sync::Arc;
 use chrono::Utc;
 use cron_tab::AsyncCron;
 use meowbot_proto::generated::{
-    ai::{AiRequest, ai_client::AiClient},
-    db::{Command, NewMessage, db_client::DbClient, platform_client::PlatformClient},
-    models::User,
-    weather::weather_client::WeatherClient,
+    ai::{ai_client::AiClient, AiRequest}, commands::command_handler_server::CommandHandler, db::{db_client::DbClient, platform_client::PlatformClient, Command, NewMessage}, models::User, weather::weather_client::WeatherClient
 };
 use rand::random_range;
-use tonic::transport::Channel;
+use tonic::{transport::Channel, Request, Response, Status};
 
 use crate::{
     config::Configuration,
@@ -23,6 +20,26 @@ pub struct App {
     platform_client: PlatformClient<Channel>,
     weather_client: WeatherClient<Channel>,
     config: Configuration,
+}
+
+#[tonic::async_trait]
+impl CommandHandler for App {
+    async fn handle_start(&self, user: Request<User>) -> Result<Response<()>, Status> {
+        let user = user.get_ref().to_owned();
+        
+        let new_message = NewMessage {
+            user: Some(user.clone()),
+            text: string_format!(
+                self.config.start_fmt.clone(),
+                user.username.clone(),
+                user.id.clone()
+            )
+        };
+        
+        self.platform_client.clone().send_message(new_message).await.expect("Failed to send message to user");
+        
+        Ok(Response::new(()))
+    }
 }
 
 impl App {
