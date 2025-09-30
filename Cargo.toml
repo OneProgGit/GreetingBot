@@ -4,7 +4,7 @@ version = "0.7.0"
 edition = "2024"
 
 [workspace]
-members = ["meowbot-core", "meowbot-ai", "meowbot-db", "meowbot-platforms", "meowbot-weather", "meowbot-proto"]
+members = ["meowbot-core", "meowbot-ai", "meowbot-db", "meowbot-platform", "meowbot-weather", "meowbot-proto"]
 
 [workspace.lints.clippy]
 nursery = { level = "deny", priority = -1 }
