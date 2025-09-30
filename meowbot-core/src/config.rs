@@ -6,13 +6,11 @@ use serde::Deserialize;
 #[derive(Clone, Deserialize, Debug)]
 pub struct Configuration {
     pub weather_fmt: String,
-    pub ai_model: String,
     pub ai_prompt: String,
     pub ai_msg_off: String,
     pub greeting_date_cron: String,
     pub greeting_fmt: String,
     pub start_fmt: String,
-    pub db_url: String,
     pub draw_date_cron: String,
     pub draw_win_fmt: String,
     pub admin: String,

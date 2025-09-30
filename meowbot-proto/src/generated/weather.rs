@@ -21,10 +21,10 @@ pub mod weather_client {
         dead_code,
         missing_docs,
         clippy::wildcard_imports,
-        clippy::let_unit_value
+        clippy::let_unit_value,
     )]
-    use tonic::codegen::http::Uri;
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct WeatherClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -63,13 +63,14 @@ pub mod weather_client {
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
             T: tonic::codegen::Service<
-                    http::Request<tonic::body::Body>,
-                    Response = http::Response<
-                        <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
-                    >,
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
                 >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::Body>>>::Error:
-                Into<StdError> + std::marker::Send + std::marker::Sync,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
         {
             WeatherClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -108,11 +109,18 @@ pub mod weather_client {
             &mut self,
             request: impl tonic::IntoRequest<()>,
         ) -> std::result::Result<tonic::Response<super::WeatherModel>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::unknown(format!("Service was not ready: {}", e.into()))
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic_prost::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/weather.Weather/GetWeather");
+            let path = http::uri::PathAndQuery::from_static(
+                "/weather.Weather/GetWeather",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("weather.Weather", "GetWeather"));
@@ -127,7 +135,7 @@ pub mod weather_server {
         dead_code,
         missing_docs,
         clippy::wildcard_imports,
-        clippy::let_unit_value
+        clippy::let_unit_value,
     )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with WeatherServer.
@@ -159,7 +167,10 @@ pub mod weather_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -214,13 +225,18 @@ pub mod weather_server {
                 "/weather.Weather/GetWeather" => {
                     #[allow(non_camel_case_types)]
                     struct GetWeatherSvc<T: Weather>(pub Arc<T>);
-                    impl<T: Weather> tonic::server::UnaryService<()> for GetWeatherSvc<T> {
+                    impl<T: Weather> tonic::server::UnaryService<()>
+                    for GetWeatherSvc<T> {
                         type Response = super::WeatherModel;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(&mut self, request: tonic::Request<()>) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Weather>::get_weather(&inner, request).await };
+                            let fut = async move {
+                                <T as Weather>::get_weather(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -246,19 +262,25 @@ pub mod weather_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    let mut response = http::Response::new(tonic::body::Body::default());
-                    let headers = response.headers_mut();
-                    headers.insert(
-                        tonic::Status::GRPC_STATUS,
-                        (tonic::Code::Unimplemented as i32).into(),
-                    );
-                    headers.insert(
-                        http::header::CONTENT_TYPE,
-                        tonic::metadata::GRPC_CONTENT_TYPE,
-                    );
-                    Ok(response)
-                }),
+                _ => {
+                    Box::pin(async move {
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
+                    })
+                }
             }
         }
     }

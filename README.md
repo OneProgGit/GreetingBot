@@ -42,8 +42,6 @@ greeting_fmt = "" # Greeting message format
 
 start_fmt = "" # Message which appears when /start command called
 
-db_url = "" # Url to database
-
 draw_date_cron = "" # Datetime of draw in cron format
 draw_win_fmt = "" # Format of message which sends to user when he won the draw
 
