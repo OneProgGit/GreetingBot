@@ -3,7 +3,14 @@ name = "meowbot-proto"
 version = "0.7.0"
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
+prost = "0.14.1"
+prost-types = "0.14.1"
+tonic = "0.14.2"
+tonic-prost = "0.14.2"
 
 [lints]
 workspace = true
