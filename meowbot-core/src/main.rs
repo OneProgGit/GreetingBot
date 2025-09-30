@@ -1,6 +1,5 @@
 use std::env;
 
-use ::config::Config;
 use dotenvy::dotenv;
 use meowbot_proto::generated::{
     ai::ai_client::AiClient,
@@ -12,6 +11,7 @@ use crate::{app::App, config::load_config};
 
 mod app;
 mod config;
+mod formats;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -32,13 +32,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config_path = env::var("CONFIG_PATH").expect("CONFIG_PATH must be set!");
     let config = load_config(&config_path).expect("Failed to load config");
 
-    let app = App::new(
+    let mut app = App::new(
         ai_client,
         db_client,
         platform_client,
         weather_client,
         config,
     );
+
+    app.bind_all_commands();
+    app.schedule_all_tasks();
 
     Ok(())
 }

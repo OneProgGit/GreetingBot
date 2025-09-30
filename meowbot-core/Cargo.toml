@@ -4,12 +4,15 @@ version = "0.7.0"
 edition = "2024"
 
 [dependencies]
+chrono = "0.4.42"
 config = "0.15.17"
+cron_tab = { version = "0.2.10", features = ["async"] }
 dotenvy = "0.15.7"
 meowbot-proto = { version = "0.7.0", path = "../meowbot-proto" }
 prost = "0.14.1"
 prost-types = "0.14.1"
 serde = { version = "1.0.228", features = ["derive"] }
+string_format = "0.1.0"
 tokio = { version = "1.47.1", features = ["rt-multi-thread"] }
 tonic = "0.14.2"
 

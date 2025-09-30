@@ -489,7 +489,7 @@ pub mod platform_client {
             req.extensions_mut().insert(GrpcMethod::new("db.Platform", "SendMessage"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn bind_command(
+        pub async fn bind_start_command(
             &mut self,
             request: impl tonic::IntoRequest<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
@@ -502,9 +502,12 @@ pub mod platform_client {
                     )
                 })?;
             let codec = tonic_prost::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/db.Platform/BindCommand");
+            let path = http::uri::PathAndQuery::from_static(
+                "/db.Platform/BindStartCommand",
+            );
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("db.Platform", "BindCommand"));
+            req.extensions_mut()
+                .insert(GrpcMethod::new("db.Platform", "BindStartCommand"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -533,7 +536,7 @@ pub mod platform_server {
             tonic::Response<super::super::models::UsersList>,
             tonic::Status,
         >;
-        async fn bind_command(
+        async fn bind_start_command(
             &self,
             request: tonic::Request<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
@@ -693,11 +696,11 @@ pub mod platform_server {
                     };
                     Box::pin(fut)
                 }
-                "/db.Platform/BindCommand" => {
+                "/db.Platform/BindStartCommand" => {
                     #[allow(non_camel_case_types)]
-                    struct BindCommandSvc<T: Platform>(pub Arc<T>);
+                    struct BindStartCommandSvc<T: Platform>(pub Arc<T>);
                     impl<T: Platform> tonic::server::UnaryService<super::Command>
-                    for BindCommandSvc<T> {
+                    for BindStartCommandSvc<T> {
                         type Response = ();
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -709,7 +712,7 @@ pub mod platform_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Platform>::bind_command(&inner, request).await
+                                <T as Platform>::bind_start_command(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -720,7 +723,7 @@ pub mod platform_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = BindCommandSvc(inner);
+                        let method = BindStartCommandSvc(inner);
                         let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

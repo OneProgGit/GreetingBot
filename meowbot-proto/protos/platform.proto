@@ -8,7 +8,7 @@ import "models.proto";
 service Platform {
   rpc Run(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc SendMessage(google.protobuf.Empty) returns (models.UsersList);
-  rpc BindCommand(Command) returns (google.protobuf.Empty);
+  rpc BindStartCommand(Command) returns (google.protobuf.Empty);
 }
 
 message Command {
