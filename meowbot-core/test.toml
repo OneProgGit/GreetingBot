@@ -1,5 +1,6 @@
 weather_fmt = ""
 
+ai_model = ""
 ai_prompt = ""
 ai_msg_off = ""
 
