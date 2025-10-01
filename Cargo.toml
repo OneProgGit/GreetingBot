@@ -7,14 +7,11 @@ edition = "2024"
 members = ["meowbot-core", "meowbot-ai", "meowbot-db", "meowbot-platform", "meowbot-weather", "meowbot-proto"]
 
 [workspace.lints.clippy]
-nursery = { level = "deny", priority = -1 }
+nursery = { level = "warn", priority = -1 }
 multiple_crate_versions = "allow"
 
 [workspace.lints.rustdoc]
 all = "deny"
-
-# [lints.rust]
-# missing_docs = "deny"
 
 [profile.release]
 opt-level = 3
