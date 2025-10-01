@@ -5,8 +5,9 @@ use cron_tab::AsyncCron;
 use meowbot_proto::generated::{
     ai::{AiRequest, ai_client::AiClient},
     commands::command_handler_server::CommandHandler,
-    db::{Command, NewMessage, db_client::DbClient, platform_client::PlatformClient},
+    db::db_client::DbClient,
     models::User,
+    platform::{Command, NewMessage, platform_client::PlatformClient},
     weather::weather_client::WeatherClient,
 };
 use rand::random_range;
@@ -157,11 +158,10 @@ impl App {
             prompt: self.config.ai_prompt.clone(),
         };
         let ai_answer_response = self.ai_client.clone().get_response(ai_request).await;
-        let ai_answer = if let Ok(ai_answer_response) = ai_answer_response {
-            ai_answer_response.get_ref().to_owned().response
-        } else {
-            self.config.ai_msg_off.clone()
-        };
+        let ai_answer = ai_answer_response.map_or_else(
+            |_| self.config.ai_msg_off.clone(),
+            |ai_answer_response| ai_answer_response.get_ref().to_owned().response,
+        );
 
         let now = Utc::now();
 

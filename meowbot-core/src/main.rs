@@ -2,9 +2,8 @@ use std::{env, sync::Arc};
 
 use dotenvy::dotenv;
 use meowbot_proto::generated::{
-    ai::ai_client::AiClient,
-    commands::command_handler_server::CommandHandlerServer,
-    db::{db_client::DbClient, platform_client::PlatformClient},
+    ai::ai_client::AiClient, commands::command_handler_server::CommandHandlerServer,
+    db::db_client::DbClient, platform::platform_client::PlatformClient,
     weather::weather_client::WeatherClient,
 };
 use tonic::transport::Server;

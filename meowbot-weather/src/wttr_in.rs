@@ -61,7 +61,7 @@ impl Weather for WttrIn {
             wind_speed_kmph: current_cond.wind_speed_kmph.clone(),
             min_temp_c: weather_today.min_temp_c.clone(),
             max_temp_c: weather_today.max_temp_c.clone(),
-            status: status.to_string().clone(),
+            status: status.to_string(),
         }))
     }
 }
