@@ -5,6 +5,8 @@ pub struct AiRequest {
     pub weather: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub prompt: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub model: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AiResponse {

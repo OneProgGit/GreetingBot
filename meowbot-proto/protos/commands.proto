@@ -6,5 +6,5 @@ import "google/protobuf/empty.proto";
 import "models.proto";
 
 service CommandHandler {
-    rpc HandleStart(models.User) returns (google.protobuf.Empty);
+  rpc HandleStart(models.User) returns (google.protobuf.Empty);
 }

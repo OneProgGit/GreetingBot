@@ -46,11 +46,12 @@ impl Ai for Ollama {
 
         let weather = request.weather;
         let prompt = request.prompt;
+        let model = request.model;
 
         let ollama = ollama_rs::Ollama::default();
         let response = ollama
             .generate(GenerationRequest::new(
-                "qwen3:30b".into(),
+                model,
                 string_format(prompt, weather),
             ))
             .await

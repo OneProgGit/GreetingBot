@@ -106,6 +106,38 @@ impl App {
         cron.start().await;
     }
 
+    async fn process_user(&self, user: User, weather: String) {
+        let ai_request = AiRequest {
+            weather: weather.clone(),
+            prompt: self.config.ai_prompt.clone(),
+            model: self.config.ai_model.clone(),
+        };
+        let ai_answer_response = self.ai_client.clone().get_response(ai_request).await;
+        let ai_answer = ai_answer_response.map_or_else(
+            |_| self.config.ai_msg_off.clone(),
+            |ai_answer_response| ai_answer_response.get_ref().to_owned().response,
+        );
+
+        let now = Utc::now();
+
+        let new_message = NewMessage {
+            user: Some(user.clone()),
+            text: string_format!(
+                self.config.greeting_fmt.clone(),
+                user.username.clone(),
+                format_datetime_russian(now.naive_local()),
+                weather,
+                ai_answer.clone()
+            ),
+        };
+
+        self.platform_client
+            .clone()
+            .send_message(new_message)
+            .await
+            .expect("Failed to send message to user");
+    }
+
     async fn send_daily_messages(self: Arc<Self>) {
         let weather_response = self
             .weather_client
@@ -150,37 +182,6 @@ impl App {
                 app.process_user(user, formatted_weather.clone()).await;
             });
         }
-    }
-
-    async fn process_user(&self, user: User, weather: String) {
-        let ai_request = AiRequest {
-            weather: weather.clone(),
-            prompt: self.config.ai_prompt.clone(),
-        };
-        let ai_answer_response = self.ai_client.clone().get_response(ai_request).await;
-        let ai_answer = ai_answer_response.map_or_else(
-            |_| self.config.ai_msg_off.clone(),
-            |ai_answer_response| ai_answer_response.get_ref().to_owned().response,
-        );
-
-        let now = Utc::now();
-
-        let new_message = NewMessage {
-            user: Some(user.clone()),
-            text: string_format!(
-                self.config.greeting_fmt.clone(),
-                user.username.clone(),
-                format_datetime_russian(now.naive_local()),
-                weather,
-                ai_answer.clone()
-            ),
-        };
-
-        self.platform_client
-            .clone()
-            .send_message(new_message)
-            .await
-            .expect("Failed to send message to user");
     }
 
     async fn make_draw(self: Arc<Self>) -> () {

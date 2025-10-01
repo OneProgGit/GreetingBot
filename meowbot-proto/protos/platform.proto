@@ -11,10 +11,8 @@ service Platform {
 }
 
 message NewMessage {
-    models.User user = 1;
-    string text = 2;
+  models.User user = 1;
+  string text = 2;
 }
 
-message Command {
-  string text = 1;
-}
+message Command { string text = 1; }
