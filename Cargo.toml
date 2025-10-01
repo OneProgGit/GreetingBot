@@ -12,7 +12,9 @@ multiple_crate_versions = "allow"
 
 [workspace.lints.rustdoc]
 all = "deny"
-missing_docs = "deny"
+
+# [lints.rust]
+# missing_docs = "deny"
 
 [profile.release]
 opt-level = 3
