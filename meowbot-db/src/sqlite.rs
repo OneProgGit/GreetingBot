@@ -26,6 +26,8 @@ impl Sqlite {
 #[tonic::async_trait]
 impl Db for Sqlite {
     async fn create_user(&self, user: Request<User>) -> Result<Response<()>, Status> {
+        println!("Creating user {user:?}...");
+
         let user = user.get_ref().to_owned();
 
         sqlx::query(

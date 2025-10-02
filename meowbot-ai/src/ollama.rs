@@ -42,6 +42,8 @@ impl Ai for Ollama {
         &self,
         request: Request<AiRequest>,
     ) -> Result<Response<AiResponse>, Status> {
+        println!("Handling {request:?}...");
+
         let request = request.get_ref().to_owned();
 
         let weather = request.weather;

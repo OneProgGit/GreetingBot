@@ -31,6 +31,8 @@ pub struct App {
 #[tonic::async_trait]
 impl CommandHandler for App {
     async fn handle_start(&self, user: Request<User>) -> Result<Response<()>, Status> {
+        println!("Handling start command for user {user:?}...");
+
         let user = user.get_ref().to_owned();
 
         let new_message = NewMessage {
@@ -47,6 +49,12 @@ impl CommandHandler for App {
             .send_message(new_message)
             .await
             .expect("Failed to send message to user");
+
+        self.db_client
+            .clone()
+            .create_user(user)
+            .await
+            .expect("Failed to create user!");
 
         Ok(Response::new(()))
     }
@@ -107,6 +115,8 @@ impl App {
     }
 
     async fn process_user(&self, user: User, weather: String) {
+        println!("Processing user {user:?}...");
+
         let ai_request = AiRequest {
             weather: weather.clone(),
             prompt: self.config.ai_prompt.clone(),
@@ -139,6 +149,8 @@ impl App {
     }
 
     async fn send_daily_messages(self: Arc<Self>) {
+        println!("Sending daily messages...");
+
         let weather_response = self
             .weather_client
             .clone()
@@ -185,6 +197,8 @@ impl App {
     }
 
     async fn make_draw(self: Arc<Self>) -> () {
+        println!("Making a draw...");
+
         let users_response = self
             .db_client
             .clone()
