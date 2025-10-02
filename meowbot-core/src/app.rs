@@ -53,7 +53,7 @@ impl CommandHandler for App {
 }
 
 impl App {
-    pub fn new(
+    pub const fn new(
         ai_client: AiClient<Channel>,
         db_client: DbClient<Channel>,
         platform_client: PlatformClient<Channel>,
