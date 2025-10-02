@@ -1,6 +1,7 @@
 /target
+/bin
 .env
 config.toml
-greeting_db.db
+meowbot-database
 .vscode
 .zed

@@ -1,6 +1,5 @@
 use std::env;
 
-use dotenvy::dotenv;
 use meowbot_proto::generated::db::db_server::DbServer;
 use tonic::transport::Server;
 
@@ -10,9 +9,12 @@ mod sqlite;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    dotenv().ok();
+    dotenvy::from_filename("bin/meowbot-db/.env").ok();
 
     let db_addr = env::var("DB_ADDR").expect("DB_ADDR must be set!");
+
+    println!("Serving DB at {db_addr}...");
+
     let db_url = env::var("DB_URL").expect("DB_URL must be set!");
 
     let sqlite = Sqlite::new(&db_url).await?;

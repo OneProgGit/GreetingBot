@@ -14,14 +14,18 @@ pub struct TelegramService {
 }
 
 impl TelegramService {
-    pub fn new(commands_service: CommandHandlerClient<Channel>) -> Self {
+    pub fn new() -> Self {
         Self {
-            tg: Arc::new(Telegram::new(commands_service)),
+            tg: Arc::new(Telegram::new()),
         }
     }
 
+    pub async fn init(&self, commands_service: CommandHandlerClient<Channel>) {
+        self.tg.clone().init(commands_service).await;
+    }
+
     pub async fn run(&self) {
-        self.tg.clone().run().await
+        self.tg.clone().run().await;
     }
 }
 

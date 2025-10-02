@@ -70,10 +70,14 @@ cargo --version
 rustc --version
 ```
 
-Build all crates:
+Make sure you're in the root directory of project. Build all crates:
 
 ```bash
-cargo build --all
+make build
 ```
 
-Now, run target/debug/(meowbot-core, meowbot-ai, meowbot-db, meowbot-platform, meowbot-weather) for each microservice respectively.
+Run 
+```bash
+make run-(ai/db/platform/weather/core)
+```
+for each microservice respectively.

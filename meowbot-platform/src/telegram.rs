@@ -21,18 +21,22 @@ enum Bind {
 pub struct Telegram {
     bot: Arc<Bot>,
     binds: Mutex<HashMap<String, Bind>>,
-    commands_service: CommandHandlerClient<Channel>,
+    commands_service: Mutex<Option<CommandHandlerClient<Channel>>>,
 }
 
 impl Telegram {
-    pub fn new(commands_service: CommandHandlerClient<Channel>) -> Self {
+    pub fn new() -> Self {
         let bot = Bot::from_env();
 
         Self {
             bot: Arc::new(bot),
             binds: Mutex::new(HashMap::new()),
-            commands_service,
+            commands_service: Mutex::new(None),
         }
+    }
+
+    pub async fn init(self: Arc<Self>, commands_service: CommandHandlerClient<Channel>) {
+        *self.commands_service.lock().await = Some(commands_service);
     }
 
     async fn handle_message(self: Arc<Self>, user: User, msg: &str) {
@@ -40,7 +44,10 @@ impl Telegram {
             match *cmd {
                 Bind::Start => {
                     self.commands_service
+                        .lock()
+                        .await
                         .clone()
+                        .expect("Commands service must be set!")
                         .handle_start(user)
                         .await
                         .expect("Failed to handle start");
@@ -84,7 +91,7 @@ impl Telegram {
     }
 
     pub async fn send_message(
-        self: Arc<Self>,
+        &self,
         new_message: Request<NewMessage>,
     ) -> Result<Response<()>, Status> {
         let new_message = new_message.get_ref().to_owned();
