@@ -1,13 +1,11 @@
-# Greeting Bot (aka MeowBot)
+# MeowBot (aka Greeting Bot)
 
-[Версия на русском](README-RU.md)
+MeowBot is a Telegram bot, which sends a message to all users in database with AI-generated text.
+It has microservice architecture (since 0.7.0), which allows you to choose database, weather, AI or platform provider or create your own.
 
-Greeting Bot is a Telegram bot, which sends a message to all users in database with AI-generated text.
-It has modular architecture (since 0.6.0), which allows you to choose database, weather, AI or platform provider or create your own.
+## MeowBot in action
 
-## Greeting Bot in action
-
-![Greeting Bot in action](https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c)
+![MeowBot in action](https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c)
 
 ## Getting started
 
@@ -29,11 +27,12 @@ Cd into the project folder:
 cd GreetingBot
 ```
 
-Create your config file and fill it like that ([about cron](https://en.wikipedia.org/wiki/Cron)):
+Create your config file in meowbot-core folder and fill it like that ([about cron](https://en.wikipedia.org/wiki/Cron)):
 
 ```toml
 weather_fmt = "" # Weather format in greeting message
 
+ai_model = "" # Ai model name
 ai_prompt = "" # Ai model prompt
 ai_msg_off = "" # Message which appears when cannot connect to AI provider
 
@@ -51,25 +50,30 @@ draw_results_fmt = "" # Format of message which sends to channel and admin when 
 channel = "" # Channel or chat id
 ```
 
-Create .env and fill these fields:
+Create .env in the same folder and fill these fields:
 
 ```env
-TELOXIDE_TOKEN = "" # Token of your telegram bot, if the target platform is so
+COMMANDS_ADDR = "" # Address to host commands handler server
+AI_ADDR = "" # Ai microservice address
+DB_ADDR = "" # Db microservice address
+PLATFORM_ADDR = "" # Platform microservice address
+WEATHER_ADDR = "" # Weather microservice address
 CONFIG_PATH = "" # Path to the config from previous step
-RUST_LOG = "" # Log level, for example, `DEBUG`
 ```
 
-Make sure Rust installed ([how to install Rust](https://rustup.rs/)):
+Create .env files in meowbot-ai, meowbot-db, meowbot-platform, meowbot-weather folders and fill AI_ADDR, DB_ADDR, PLATFORM_ADDR, WEATHER_ADDR fields respectively. Also, fill COMMANDS_ADDR and TELOXIDE_TOKEN (token of your telegram bot, if you use so) field in .env file in meowbot-platform folder and DB_URL (url of your database) in .env file in meowbot-db folder.
+
+Make sure Rust installed (it should display a version, [how to install Rust](https://rustup.rs/)):
 
 ```bash
 cargo --version
 rustc --version
 ```
 
-Run this command:
+Build all crates:
 
 ```bash
-cargo run --release
+cargo build --all
 ```
 
-Now, the bot is running!
+Now, run target/debug/(meowbot-core, meowbot-ai, meowbot-db, meowbot-platform, meowbot-weather) for each microservice respectively.
