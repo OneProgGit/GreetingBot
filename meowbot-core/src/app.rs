@@ -127,6 +127,7 @@ impl App {
             |_| self.config.ai_msg_off.clone(),
             |ai_answer_response| ai_answer_response.get_ref().to_owned().response,
         );
+        println!("Got ai answer: {ai_answer}...");
 
         let now = Utc::now();
 

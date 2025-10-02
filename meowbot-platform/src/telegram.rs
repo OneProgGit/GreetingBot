@@ -40,6 +40,8 @@ impl Telegram {
     }
 
     async fn handle_message(self: Arc<Self>, user: User, msg: &str) {
+        println!("Handling message: '{msg}' from {user:?}...");
+
         if let Some(cmd) = self.binds.lock().await.get(msg) {
             match *cmd {
                 Bind::Start => {
@@ -94,6 +96,8 @@ impl Telegram {
         &self,
         new_message: Request<NewMessage>,
     ) -> Result<Response<()>, Status> {
+        println!("Sending message: {new_message:?}...");
+
         let new_message = new_message.get_ref().to_owned();
         let user = new_message.user.expect("User must be set!");
 

@@ -45,6 +45,8 @@ impl Db for Sqlite {
     }
 
     async fn get_users(&self, _request: Request<()>) -> Result<Response<UsersList>, Status> {
+        println!("Getting users...");
+
         let rows = sqlx::query("SELECT id, username FROM users")
             .fetch_all(&*self.pool)
             .await
