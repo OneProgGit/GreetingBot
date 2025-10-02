@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let commands_addr = env::var("COMMANDS_ADDR").expect("COMMANDS_ADDR must be set!");
 
-    print!("Serving COMMANDS at {commands_addr}...");
+    println!("Serving COMMANDS at {commands_addr}...");
 
     Server::builder()
         .add_service(CommandHandlerServer::new(app))
