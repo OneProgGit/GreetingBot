@@ -1,10 +1,11 @@
-use std::{env, sync::Arc};
+use std::{env, sync::Arc, time::Duration};
 
 use meowbot_proto::generated::{
     ai::ai_client::AiClient, commands::command_handler_server::CommandHandlerServer,
     db::db_client::DbClient, platform::platform_client::PlatformClient,
     weather::weather_client::WeatherClient,
 };
+use tokio::time::sleep;
 use tonic::transport::Server;
 
 use crate::{app::App, config::load_config};
@@ -19,27 +20,74 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let ai_addr = env::var("AI_ADDR").expect("AI_ADDR must be set!");
 
-    println!("Connecting to AI at {ai_addr}...");
-
-    let ai_client = AiClient::connect(ai_addr).await?;
+    let ai_client;
+    loop {
+        println!("Connecting to AI at {ai_addr}...");
+        match AiClient::connect(ai_addr.clone()).await {
+            Ok(c) => {
+                ai_client = c;
+                break;
+            }
+            Err(_) => {
+                sleep(Duration::from_secs(5)).await;
+                continue;
+            }
+        }
+    }
+    println!("Connected to AI at {ai_addr}...");
 
     let db_addr = env::var("DB_ADDR").expect("DB_ADDR must be set!");
-
-    println!("Connecting to DB at {db_addr}...");
-
-    let db_client = DbClient::connect(db_addr).await?;
+    let db_client;
+    loop {
+        println!("Connecting to DB at {db_addr}...");
+        match DbClient::connect(db_addr.clone()).await {
+            Ok(c) => {
+                db_client = c;
+                break;
+            }
+            Err(_) => {
+                sleep(Duration::from_secs(5)).await;
+                continue;
+            }
+        }
+    }
+    println!("Connected to DB at {db_addr}...");
 
     let platform_addr = env::var("PLATFORM_ADDR").expect("PLATFORM_ADDR must be set!");
 
-    println!("Connecting to PLATFORM at {platform_addr}");
-
-    let platform_client = PlatformClient::connect(platform_addr).await?;
+    let platform_client;
+    loop {
+        println!("Connecting to PLATFORM at {platform_addr}...");
+        match PlatformClient::connect(platform_addr.clone()).await {
+            Ok(c) => {
+                platform_client = c;
+                break;
+            }
+            Err(_) => {
+                sleep(Duration::from_secs(5)).await;
+                continue;
+            }
+        }
+    }
+    println!("Connected to PLATFORM at {platform_addr}...");
 
     let weather_addr = env::var("WEATHER_ADDR").expect("WEATHER_ADDR must be set!");
 
-    println!("Connecting to WEATHER at {weather_addr}");
-
-    let weather_client = WeatherClient::connect(weather_addr).await?;
+    let weather_client;
+    loop {
+        println!("Connecting to WEATHER at {weather_addr}...");
+        match WeatherClient::connect(weather_addr.clone()).await {
+            Ok(c) => {
+                weather_client = c;
+                break;
+            }
+            Err(_) => {
+                sleep(Duration::from_secs(5)).await;
+                continue;
+            }
+        }
+    }
+    println!("Connected to WEATHER at {weather_addr}...");
 
     let config_path = env::var("CONFIG_PATH").expect("CONFIG_PATH must be set!");
 

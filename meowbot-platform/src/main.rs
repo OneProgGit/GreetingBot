@@ -40,16 +40,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         println!("Connecting to COMMANDS at {commands_addr}...");
         match CommandHandlerClient::connect(commands_addr.clone()).await {
-            Ok(s) => {
-                commands_client = s;
+            Ok(c) => {
+                commands_client = c;
                 break;
             }
             Err(_) => {
-                sleep(Duration::from_secs(1)).await;
+                sleep(Duration::from_secs(5)).await;
                 continue;
             }
         }
     }
+    println!("Connected to COMMANDS at {commands_addr}...");
 
     tg_clone.init(commands_client).await;
     tg_clone.run().await;
