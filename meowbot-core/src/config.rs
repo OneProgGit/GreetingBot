@@ -17,6 +17,7 @@ pub struct Configuration {
     pub admin: String,
     pub draw_results_fmt: String,
     pub channel: String,
+    pub skip_channel: bool,
 }
 
 pub fn load_config(path: &str) -> Result<Configuration, ConfigError> {

@@ -5,6 +5,10 @@ pub struct User {
     pub id: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub username: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub city: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub areas_of_interest: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UsersList {

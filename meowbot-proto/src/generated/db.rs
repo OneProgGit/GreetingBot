@@ -108,6 +108,24 @@ pub mod db_client {
             req.extensions_mut().insert(GrpcMethod::new("db.Db", "CreateUser"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn update_user(
+            &mut self,
+            request: impl tonic::IntoRequest<super::super::models::User>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/db.Db/UpdateUser");
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("db.Db", "UpdateUser"));
+            self.inner.unary(req, path, codec).await
+        }
         pub async fn get_users(
             &mut self,
             request: impl tonic::IntoRequest<()>,
@@ -129,24 +147,6 @@ pub mod db_client {
             req.extensions_mut().insert(GrpcMethod::new("db.Db", "GetUsers"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn update_user(
-            &mut self,
-            request: impl tonic::IntoRequest<super::super::models::User>,
-        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::unknown(
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic_prost::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/db.Db/UpdateUser");
-            let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("db.Db", "UpdateUser"));
-            self.inner.unary(req, path, codec).await
-        }
     }
 }
 /// Generated server implementations.
@@ -166,6 +166,10 @@ pub mod db_server {
             &self,
             request: tonic::Request<super::super::models::User>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
+        async fn update_user(
+            &self,
+            request: tonic::Request<super::super::models::User>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
         async fn get_users(
             &self,
             request: tonic::Request<()>,
@@ -173,10 +177,6 @@ pub mod db_server {
             tonic::Response<super::super::models::UsersList>,
             tonic::Status,
         >;
-        async fn update_user(
-            &self,
-            request: tonic::Request<super::super::models::User>,
-        ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct DbServer<T> {
@@ -297,45 +297,6 @@ pub mod db_server {
                     };
                     Box::pin(fut)
                 }
-                "/db.Db/GetUsers" => {
-                    #[allow(non_camel_case_types)]
-                    struct GetUsersSvc<T: Db>(pub Arc<T>);
-                    impl<T: Db> tonic::server::UnaryService<()> for GetUsersSvc<T> {
-                        type Response = super::super::models::UsersList;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(&mut self, request: tonic::Request<()>) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Db>::get_users(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = GetUsersSvc(inner);
-                        let codec = tonic_prost::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
                 "/db.Db/UpdateUser" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateUserSvc<T: Db>(pub Arc<T>);
@@ -364,6 +325,45 @@ pub mod db_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateUserSvc(inner);
+                        let codec = tonic_prost::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/db.Db/GetUsers" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetUsersSvc<T: Db>(pub Arc<T>);
+                    impl<T: Db> tonic::server::UnaryService<()> for GetUsersSvc<T> {
+                        type Response = super::super::models::UsersList;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(&mut self, request: tonic::Request<()>) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Db>::get_users(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = GetUsersSvc(inner);
                         let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

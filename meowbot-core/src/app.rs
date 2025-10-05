@@ -184,8 +184,13 @@ impl App {
         let channel = User {
             id: self.config.channel.clone(),
             username: "oneprogofficial".into(),
+            city: "Moscow".into(),
+            areas_of_interest: "Rust, Unity, Unreal Engine, C#, C++".into(),
         };
-        users_list.users.push(channel);
+
+        if !self.config.skip_channel {
+            users_list.users.push(channel);
+        }
 
         for user in users_list.users {
             let app = self.clone();

@@ -48,6 +48,7 @@ admin = "" # Admin id
 draw_results_fmt = "" # Format of message which sends to channel and admin when draw's winner has chosen
 
 channel = "" # Channel or chat id
+skip_channel = true/false # Skip processing channel?
 ```
 
 Create .env in the same folder and fill these fields:
@@ -59,7 +60,6 @@ DB_ADDR= # Db microservice address
 PLATFORM_ADDR= # Platform microservice address
 WEATHER_ADDR= # Weather microservice address
 CONFIG_PATH= # Path to the config from previous step
-SKIP_CHAT=true/false # Skip chat while processing users?
 ```
 
 Create .env files in meowbot-ai, meowbot-db, meowbot-platform, meowbot-weather folders and fill AI_ADDR, DB_ADDR, PLATFORM_ADDR, WEATHER_ADDR fields respectively. Also, fill COMMANDS_ADDR and TELOXIDE_TOKEN (token of your telegram bot, if you use so) field in .env file in meowbot-platform folder and DB_URL (url of your database) in .env file in meowbot-db folder.

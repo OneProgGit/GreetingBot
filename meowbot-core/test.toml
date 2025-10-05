@@ -18,3 +18,4 @@ admin = 1
 draw_results_fmt = ""
 
 channel = 1
+skip_channel = false
