@@ -5,6 +5,8 @@ package models;
 message User {
   string id = 1;
   string username = 2;
+  string city = 3;
+  string areas_of_interest = 4;
 }
 
 message UsersList { repeated User users = 1; }

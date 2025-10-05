@@ -7,4 +7,16 @@ import "models.proto";
 
 service CommandHandler {
   rpc HandleStart(models.User) returns (google.protobuf.Empty);
+  rpc HandleChangeCity(ChangeCity) returns (google.protobuf.Empty);
+  rpc HandleChangeAreasOfInterest(ChangeAreasOfInterest) returns (google.protobuf.Empty);
+}
+
+message ChangeCity {
+  models.User user = 1;
+  string new_city = 2;
+}
+
+message ChangeAreasOfInterest {
+  models.User user = 1;
+  string new_areas_of_interest = 2;
 }

@@ -7,5 +7,6 @@ import "models.proto";
 
 service Db {
   rpc CreateUser(models.User) returns (google.protobuf.Empty);
+  rpc UpdateUser(models.User) returns (google.protobuf.Empty);
   rpc GetUsers(google.protobuf.Empty) returns (models.UsersList);
 }

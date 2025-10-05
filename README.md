@@ -53,24 +53,31 @@ channel = "" # Channel or chat id
 Create .env in the same folder and fill these fields:
 
 ```env
-COMMANDS_ADDR = "" # Address to host commands handler server
-AI_ADDR = "" # Ai microservice address
-DB_ADDR = "" # Db microservice address
-PLATFORM_ADDR = "" # Platform microservice address
-WEATHER_ADDR = "" # Weather microservice address
-CONFIG_PATH = "" # Path to the config from previous step
+COMMANDS_ADDR= # Address to host commands handler server
+AI_ADDR= # Ai microservice address
+DB_ADDR= # Db microservice address
+PLATFORM_ADDR= # Platform microservice address
+WEATHER_ADDR= # Weather microservice address
+CONFIG_PATH= # Path to the config from previous step
+SKIP_CHAT=true/false # Skip chat while processing users?
 ```
 
 Create .env files in meowbot-ai, meowbot-db, meowbot-platform, meowbot-weather folders and fill AI_ADDR, DB_ADDR, PLATFORM_ADDR, WEATHER_ADDR fields respectively. Also, fill COMMANDS_ADDR and TELOXIDE_TOKEN (token of your telegram bot, if you use so) field in .env file in meowbot-platform folder and DB_URL (url of your database) in .env file in meowbot-db folder.
 
-Make sure Rust installed (it should display a version, [how to install Rust](https://rustup.rs/)):
+Make sure Rust and GNU Make installed (it should display versions, [how to install Rust](https://rustup.rs/), [how to install GNU Make](https://www.gnu.org/software/make/#download)):
 
 ```bash
 cargo --version
 rustc --version
+make --version
 ```
 
-Make sure you're in the root directory of project. Build all crates:
+Make sure you're in the root directory of the project:
+```bash
+pwd
+```
+
+Build all crates:
 
 ```bash
 make build
@@ -80,4 +87,5 @@ Run
 ```bash
 make run-(ai/db/platform/weather/core)
 ```
-for each microservice respectively.
+
+for each microservice respectively to run it.
