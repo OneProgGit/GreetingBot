@@ -263,7 +263,11 @@ impl App {
 
         let ai_request = AiRequest {
             weather: formatted_weather.clone(),
-            prompt: self.config.ai_prompt.clone(),
+            prompt: string_format!(
+                self.config.ai_prompt.clone(),
+                formatted_weather.clone(),
+                user.areas_of_interest.clone()
+            ),
             model: self.config.ai_model.clone(),
         };
         let ai_answer_response = self.ai_client.clone().get_response(ai_request).await;
