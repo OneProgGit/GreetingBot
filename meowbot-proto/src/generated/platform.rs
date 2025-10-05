@@ -144,7 +144,7 @@ pub mod platform_client {
                 .insert(GrpcMethod::new("platform.Platform", "BindStartCommand"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn bind_change_city(
+        pub async fn bind_change_city_command(
             &mut self,
             request: impl tonic::IntoRequest<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
@@ -158,14 +158,14 @@ pub mod platform_client {
                 })?;
             let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/platform.Platform/BindChangeCity",
+                "/platform.Platform/BindChangeCityCommand",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("platform.Platform", "BindChangeCity"));
+                .insert(GrpcMethod::new("platform.Platform", "BindChangeCityCommand"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn bind_change_areas_of_interest(
+        pub async fn bind_change_areas_of_interest_command(
             &mut self,
             request: impl tonic::IntoRequest<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
@@ -179,12 +179,15 @@ pub mod platform_client {
                 })?;
             let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/platform.Platform/BindChangeAreasOfInterest",
+                "/platform.Platform/BindChangeAreasOfInterestCommand",
             );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(
-                    GrpcMethod::new("platform.Platform", "BindChangeAreasOfInterest"),
+                    GrpcMethod::new(
+                        "platform.Platform",
+                        "BindChangeAreasOfInterestCommand",
+                    ),
                 );
             self.inner.unary(req, path, codec).await
         }
@@ -211,11 +214,11 @@ pub mod platform_server {
             &self,
             request: tonic::Request<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
-        async fn bind_change_city(
+        async fn bind_change_city_command(
             &self,
             request: tonic::Request<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
-        async fn bind_change_areas_of_interest(
+        async fn bind_change_areas_of_interest_command(
             &self,
             request: tonic::Request<super::Command>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
@@ -382,11 +385,11 @@ pub mod platform_server {
                     };
                     Box::pin(fut)
                 }
-                "/platform.Platform/BindChangeCity" => {
+                "/platform.Platform/BindChangeCityCommand" => {
                     #[allow(non_camel_case_types)]
-                    struct BindChangeCitySvc<T: Platform>(pub Arc<T>);
+                    struct BindChangeCityCommandSvc<T: Platform>(pub Arc<T>);
                     impl<T: Platform> tonic::server::UnaryService<super::Command>
-                    for BindChangeCitySvc<T> {
+                    for BindChangeCityCommandSvc<T> {
                         type Response = ();
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -398,7 +401,8 @@ pub mod platform_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Platform>::bind_change_city(&inner, request).await
+                                <T as Platform>::bind_change_city_command(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -409,7 +413,7 @@ pub mod platform_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = BindChangeCitySvc(inner);
+                        let method = BindChangeCityCommandSvc(inner);
                         let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -425,11 +429,11 @@ pub mod platform_server {
                     };
                     Box::pin(fut)
                 }
-                "/platform.Platform/BindChangeAreasOfInterest" => {
+                "/platform.Platform/BindChangeAreasOfInterestCommand" => {
                     #[allow(non_camel_case_types)]
-                    struct BindChangeAreasOfInterestSvc<T: Platform>(pub Arc<T>);
+                    struct BindChangeAreasOfInterestCommandSvc<T: Platform>(pub Arc<T>);
                     impl<T: Platform> tonic::server::UnaryService<super::Command>
-                    for BindChangeAreasOfInterestSvc<T> {
+                    for BindChangeAreasOfInterestCommandSvc<T> {
                         type Response = ();
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -441,7 +445,7 @@ pub mod platform_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Platform>::bind_change_areas_of_interest(
+                                <T as Platform>::bind_change_areas_of_interest_command(
                                         &inner,
                                         request,
                                     )
@@ -456,7 +460,7 @@ pub mod platform_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = BindChangeAreasOfInterestSvc(inner);
+                        let method = BindChangeAreasOfInterestCommandSvc(inner);
                         let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

@@ -8,8 +8,8 @@ import "models.proto";
 service Platform {
   rpc SendMessage(NewMessage) returns (google.protobuf.Empty);
   rpc BindStartCommand(Command) returns (google.protobuf.Empty);
-  rpc BindChangeCity(Command) returns (google.protobuf.Empty);
-  rpc BindChangeAreasOfInterest(Command) returns (google.protobuf.Empty);
+  rpc BindChangeCityCommand(Command) returns (google.protobuf.Empty);
+  rpc BindChangeAreasOfInterestCommand(Command) returns (google.protobuf.Empty);
 }
 
 message NewMessage {

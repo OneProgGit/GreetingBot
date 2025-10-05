@@ -5,7 +5,11 @@ package weather;
 import "google/protobuf/empty.proto";
 
 service Weather {
-  rpc GetWeather(google.protobuf.Empty) returns (WeatherModel);
+  rpc GetWeather(GetWeatherMessage) returns (WeatherModel);
+}
+
+message GetWeatherMessage {
+  string city = 1;
 }
 
 message WeatherModel {

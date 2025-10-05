@@ -19,3 +19,7 @@ draw_results_fmt = ""
 
 channel = 1
 skip_channel = false
+
+changed_city_fmt = ""
+changed_city_failed_fmt = ""
+changed_areas_of_interest_fmt = ""

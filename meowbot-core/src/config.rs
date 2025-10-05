@@ -18,6 +18,9 @@ pub struct Configuration {
     pub draw_results_fmt: String,
     pub channel: String,
     pub skip_channel: bool,
+    pub changed_city_fmt: String,
+    pub changed_city_failed_fmt: String,
+    pub changed_areas_of_interest_fmt: String,
 }
 
 pub fn load_config(path: &str) -> Result<Configuration, ConfigError> {

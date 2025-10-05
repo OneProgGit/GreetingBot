@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use meowbot_proto::generated::{
-    commands::command_handler_client::CommandHandlerClient,
+    commands::{ChangeAreasOfInterest, ChangeCity, command_handler_client::CommandHandlerClient},
     models::User,
     platform::{Command, NewMessage},
 };
@@ -14,8 +14,10 @@ use teloxide::{
 use tokio::sync::Mutex;
 use tonic::{Request, Response, Status, transport::Channel};
 
-enum Bind {
+pub enum Bind {
     Start,
+    ChangeCity,
+    ChangeAreasOfInterest,
 }
 
 pub struct Telegram {
@@ -42,7 +44,9 @@ impl Telegram {
     async fn handle_message(self: Arc<Self>, user: User, msg: &str) {
         println!("Handling message: '{msg}' from {user:?}...");
 
-        if let Some(cmd) = self.binds.lock().await.get(msg) {
+        let msgs: Vec<&str> = msg.split(" ").collect();
+
+        if let Some(cmd) = self.binds.lock().await.get(msgs[0]) {
             match *cmd {
                 Bind::Start => {
                     self.commands_service
@@ -51,6 +55,36 @@ impl Telegram {
                         .clone()
                         .expect("Commands service must be set!")
                         .handle_start(user)
+                        .await
+                        .expect("Failed to handle start");
+                }
+                Bind::ChangeCity => {
+                    let change_city = ChangeCity {
+                        user: Some(user),
+                        new_city: msgs[1].into(),
+                    };
+
+                    self.commands_service
+                        .lock()
+                        .await
+                        .clone()
+                        .expect("Commands service must be set!")
+                        .handle_change_city(change_city)
+                        .await
+                        .expect("Failed to handle start");
+                }
+                Bind::ChangeAreasOfInterest => {
+                    let change_areas_of_interest = ChangeAreasOfInterest {
+                        user: Some(user),
+                        new_areas_of_interest: msgs[1].into(),
+                    };
+
+                    self.commands_service
+                        .lock()
+                        .await
+                        .clone()
+                        .expect("Commands service must be set!")
+                        .handle_change_areas_of_interest(change_areas_of_interest)
                         .await
                         .expect("Failed to handle start");
                 }
@@ -80,6 +114,8 @@ impl Telegram {
                     .username()
                     .unwrap_or(&format!("User {}", msg.chat.id.0))
                     .to_string(),
+                city: "".into(),
+                areas_of_interest: "".into(),
             };
 
             async move {
@@ -110,15 +146,16 @@ impl Telegram {
         Ok(Response::new(()))
     }
 
-    pub async fn bind_start_command(
+    pub async fn bind_command(
         self: Arc<Self>,
+        bind: Bind,
         cmd: Request<Command>,
     ) -> Result<Response<()>, Status> {
         let cmd = cmd.get_ref().to_owned();
         let mut cmd_text = String::from("/");
         cmd_text.push_str(&cmd.text);
 
-        self.binds.lock().await.insert(cmd_text, Bind::Start);
+        self.binds.lock().await.insert(cmd_text, bind);
         Ok(Response::new(()))
     }
 }

@@ -6,7 +6,7 @@ use meowbot_proto::generated::{
 };
 use tonic::{Request, Response, Status, transport::Channel};
 
-use crate::telegram::Telegram;
+use crate::telegram::{Bind, Telegram};
 
 #[derive(Clone)]
 pub struct TelegramService {
@@ -36,6 +36,23 @@ impl Platform for TelegramService {
     }
 
     async fn bind_start_command(&self, cmd: Request<Command>) -> Result<Response<()>, Status> {
-        self.tg.clone().bind_start_command(cmd).await
+        self.tg.clone().bind_command(Bind::Start, cmd).await
+    }
+
+    async fn bind_change_city_command(
+        &self,
+        cmd: Request<Command>,
+    ) -> Result<Response<()>, Status> {
+        self.tg.clone().bind_command(Bind::ChangeCity, cmd).await
+    }
+
+    async fn bind_change_areas_of_interest_command(
+        &self,
+        cmd: Request<Command>,
+    ) -> Result<Response<()>, Status> {
+        self.tg
+            .clone()
+            .bind_command(Bind::ChangeAreasOfInterest, cmd)
+            .await
     }
 }

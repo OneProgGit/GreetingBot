@@ -1,4 +1,4 @@
-use meowbot_proto::generated::weather::{WeatherModel, weather_server::Weather};
+use meowbot_proto::generated::weather::{GetWeatherMessage, WeatherModel, weather_server::Weather};
 use reqwest::Client;
 use serde::Deserialize;
 use tonic::{Request, Response, Status};
@@ -40,10 +40,16 @@ pub struct WttrIn;
 
 #[tonic::async_trait]
 impl Weather for WttrIn {
-    async fn get_weather(&self, _: Request<()>) -> Result<Response<WeatherModel>, Status> {
+    async fn get_weather(
+        &self,
+        request: Request<GetWeatherMessage>,
+    ) -> Result<Response<WeatherModel>, Status> {
+        let city = request.get_ref().to_owned().city;
+        let url = format!("https://wttr.in/{city}?format=j1&lang=ru");
+
         let client = Client::new();
         let result = client
-            .get("https://wttr.in/Moscow?format=j1&lang=ru")
+            .get(url)
             .send()
             .await
             .expect("Failed to get weather response")
