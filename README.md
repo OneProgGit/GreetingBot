@@ -48,7 +48,7 @@ admin = "" # Admin id
 draw_results_fmt = "" # Format of message which sends to channel and admin when draw's winner has chosen
 
 channel = "" # Channel or chat id
-skip_channel = true or false # Skip processing channel?
+skip_channel = "true/false" # Skip processing channel?
 
 changed_city_fmt = "" # Format of message which sends to user when changed city name successfully
 changed_city_failed_fmt = "" # Format of message which sends to user when changed city name failed
