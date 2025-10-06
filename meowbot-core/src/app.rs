@@ -65,7 +65,10 @@ impl CommandHandler for App {
         let request = request.get_ref().to_owned();
         println!("Changing city {request:?}...");
 
-        let mut user = request.user.expect("User must be set!");
+        let mut user = request
+            .user
+            .ok_or_else(|| Status::invalid_argument("User is not set"))?;
+
         let get_user = GetUserMessage {
             id: user.id.clone(),
         };
@@ -73,8 +76,7 @@ impl CommandHandler for App {
             .db_client
             .clone()
             .get_user(get_user)
-            .await
-            .expect("Failed to get user")
+            .await?
             .get_ref()
             .to_owned();
         user.city = request.new_city.clone();
@@ -82,12 +84,15 @@ impl CommandHandler for App {
         let get_weather = GetWeatherMessage {
             city: request.new_city.clone(),
         };
-        if let Ok(_) = self.weather_client.clone().get_weather(get_weather).await {
-            self.db_client
-                .clone()
-                .update_user(user.clone())
-                .await
-                .expect("Failed to update user data");
+
+        if self
+            .weather_client
+            .clone()
+            .get_weather(get_weather)
+            .await
+            .is_ok()
+        {
+            self.db_client.clone().update_user(user.clone()).await?;
 
             let new_message = NewMessage {
                 user: Some(user),
@@ -97,10 +102,7 @@ impl CommandHandler for App {
             self.platform_client
                 .clone()
                 .send_message(new_message)
-                .await
-                .expect("Failed to send message");
-
-            Ok(Response::new(()))
+                .await?;
         } else {
             let new_message = NewMessage {
                 user: Some(user),
@@ -113,11 +115,10 @@ impl CommandHandler for App {
             self.platform_client
                 .clone()
                 .send_message(new_message)
-                .await
-                .expect("Failed to send message");
-
-            Ok(Response::new(()))
+                .await?;
         }
+
+        Ok(Response::new(()))
     }
 
     async fn handle_change_areas_of_interest(
@@ -216,7 +217,9 @@ impl App {
         cron.add_fn(&self.config.greeting_date_cron, move || {
             let app = app_clone_greeting.clone();
             async move {
-                app.send_daily_messages().await;
+                app.send_daily_messages()
+                    .await
+                    .expect("Failed to send dailty messages");
             }
         })
         .await
@@ -225,7 +228,7 @@ impl App {
         cron.add_fn(&self.config.draw_date_cron, move || {
             let app = app_clone_draw.clone();
             async move {
-                app.make_draw().await;
+                app.make_draw().await.expect("Failed to make draw");
             }
         })
         .await
@@ -234,19 +237,14 @@ impl App {
         cron.start().await;
     }
 
-    async fn process_user(&self, user: User) {
+    async fn process_user(&self, user: User) -> Result<(), Box<dyn std::error::Error>> {
         println!("Processing user {user:?}...");
 
         let get_weather = GetWeatherMessage {
             city: user.city.clone(),
         };
 
-        let weather_response = self
-            .weather_client
-            .clone()
-            .get_weather(get_weather)
-            .await
-            .expect("Failed to get weather");
+        let weather_response = self.weather_client.clone().get_weather(get_weather).await?;
 
         let weather_struct = weather_response.get_ref().to_owned();
 
@@ -293,19 +291,15 @@ impl App {
         self.platform_client
             .clone()
             .send_message(new_message)
-            .await
-            .expect("Failed to send message to user");
+            .await?;
+
+        Ok(())
     }
 
-    async fn send_daily_messages(self: Arc<Self>) {
+    async fn send_daily_messages(self: Arc<Self>) -> Result<(), Box<dyn std::error::Error>> {
         println!("Sending daily messages...");
 
-        let users_list_response = self
-            .db_client
-            .clone()
-            .get_users(())
-            .await
-            .expect("Failed to get users");
+        let users_list_response = self.db_client.clone().get_users(()).await?;
 
         let mut users_list = users_list_response.get_ref().to_owned();
 
@@ -324,20 +318,19 @@ impl App {
             let app = self.clone();
 
             tokio::spawn(async move {
-                app.process_user(user).await;
+                app.process_user(user.clone())
+                    .await
+                    .unwrap_or_else(|e| println!("Failed to process user {user:?}: {e}"));
             });
         }
+
+        Ok(())
     }
 
-    async fn make_draw(self: Arc<Self>) -> () {
+    async fn make_draw(self: Arc<Self>) -> Result<(), Box<dyn std::error::Error>> {
         println!("Making a draw...");
 
-        let users_response = self
-            .db_client
-            .clone()
-            .get_users(())
-            .await
-            .expect("Failed to get users");
+        let users_response = self.db_client.clone().get_users(()).await?;
 
         let users = users_response.get_ref().to_owned().users;
 
@@ -351,7 +344,7 @@ impl App {
             choice = &users[ind];
             it += 1;
             if it == 10000000 {
-                panic!("Unluckly, can't choose the winner");
+                return Err("Can't choose winner".into());
             }
         }
 
@@ -363,8 +356,7 @@ impl App {
         self.platform_client
             .clone()
             .send_message(new_message)
-            .await
-            .expect("Send message failed");
+            .await?;
 
         let results_fmt = string_format!(
             self.config.draw_results_fmt.clone(),
@@ -386,8 +378,7 @@ impl App {
         self.platform_client
             .clone()
             .send_message(new_message)
-            .await
-            .expect("Send message failed");
+            .await?;
 
         let channel: User = User {
             id: self.config.channel.clone(),
@@ -404,7 +395,8 @@ impl App {
         self.platform_client
             .clone()
             .send_message(new_message)
-            .await
-            .expect("Send message failed");
+            .await?;
+
+        Ok(())
     }
 }

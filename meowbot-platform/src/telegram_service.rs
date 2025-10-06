@@ -24,8 +24,8 @@ impl TelegramService {
         self.tg.clone().init(commands_service).await;
     }
 
-    pub async fn run(&self) {
-        self.tg.clone().run().await;
+    pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.tg.clone().run().await
     }
 }
 

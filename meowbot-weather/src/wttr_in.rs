@@ -44,18 +44,23 @@ impl Weather for WttrIn {
         &self,
         request: Request<GetWeatherMessage>,
     ) -> Result<Response<WeatherModel>, Status> {
+        println!("Getting weather {request:?}...");
+
         let city = request.get_ref().to_owned().city;
         let url = format!("https://wttr.in/{city}?format=j1&lang=ru");
 
         let client = Client::new();
-        let result = client
-            .get(url)
-            .send()
-            .await
-            .expect("Failed to get weather response")
-            .json::<WttrInWeatherResponse>()
-            .await
-            .expect("Failed to parse weather response");
+        let result = match client.get(url).send().await {
+            Ok(r) => match r.json::<WttrInWeatherResponse>().await {
+                Ok(r) => r,
+                Err(e) => {
+                    return Err(Status::from_error(e.into()));
+                }
+            },
+            Err(e) => {
+                return Err(Status::from_error(e.into()));
+            }
+        };
 
         let current_cond = &result.current_condition[0];
         let weather_today = &result.weather[0];

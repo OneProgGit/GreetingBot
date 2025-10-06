@@ -37,7 +37,7 @@ impl Db for Sqlite {
         let user = user.get_ref().to_owned();
         println!("Creating user {user:?}...");
 
-        sqlx::query(
+        match sqlx::query(
             "INSERT INTO users (id, username)
                 VALUES (?1, ?2)
                 ON CONFLICT(id) DO UPDATE SET
@@ -47,19 +47,24 @@ impl Db for Sqlite {
         .bind(user.username)
         .execute(&*self.pool)
         .await
-        .expect("Failed to create user");
-        Ok(Response::new(()))
+        {
+            Ok(_) => Ok(Response::new(())),
+            Err(e) => Err(Status::from_error(e.into())),
+        }
     }
 
     async fn get_user(&self, request: Request<GetUserMessage>) -> Result<Response<User>, Status> {
         let request = request.get_ref().to_owned();
         println!("Getting user by id {}...", request.id);
 
-        let db_user = sqlx::query_as::<_, DbUser>("SELECT * FROM users WHERE id = ?1")
+        let db_user = match sqlx::query_as::<_, DbUser>("SELECT * FROM users WHERE id = ?1")
             .bind(request.id)
             .fetch_one(&*self.pool)
             .await
-            .expect("Failed to get user");
+        {
+            Ok(u) => u,
+            Err(e) => return Err(Status::from_error(e.into())),
+        };
 
         Ok(Response::new(User {
             id: db_user.id,
@@ -73,7 +78,7 @@ impl Db for Sqlite {
         let user = user.get_ref().to_owned();
         println!("Updating user {user:?}...");
 
-        sqlx::query(
+        match sqlx::query(
             "UPDATE users SET username = ?1, city = ?2, areas_of_interest = ?3 WHERE id = ?4",
         )
         .bind(user.username)
@@ -82,18 +87,23 @@ impl Db for Sqlite {
         .bind(user.id)
         .execute(&*self.pool)
         .await
-        .expect("Failed to update user");
-
-        Ok(Response::new(()))
+        {
+            Ok(_) => Ok(Response::new(())),
+            Err(e) => Err(Status::from_error(e.into())),
+        }
     }
 
     async fn get_users(&self, _request: Request<()>) -> Result<Response<UsersList>, Status> {
         println!("Getting users...");
 
-        let rows = sqlx::query("SELECT * FROM users")
+        let rows = match sqlx::query("SELECT * FROM users")
             .fetch_all(&*self.pool)
             .await
-            .expect("Failed to get users");
+        {
+            Ok(r) => r,
+            Err(e) => return Err(Status::from_error(e.into())),
+        };
+
         let users = rows
             .into_iter()
             .map(|row| User {

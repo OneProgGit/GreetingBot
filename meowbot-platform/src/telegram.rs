@@ -41,7 +41,11 @@ impl Telegram {
         *self.commands_service.lock().await = Some(commands_service);
     }
 
-    async fn handle_message(self: Arc<Self>, user: User, msg: &str) {
+    async fn handle_message(
+        self: Arc<Self>,
+        user: User,
+        msg: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         println!("Handling message: '{msg}' from {user:?}...");
 
         let msgs: Vec<&str> = msg.split(" ").collect();
@@ -55,8 +59,7 @@ impl Telegram {
                         .clone()
                         .expect("Commands service must be set!")
                         .handle_start(user)
-                        .await
-                        .expect("Failed to handle start");
+                        .await?;
                 }
                 Bind::ChangeCity => {
                     let change_city = ChangeCity {
@@ -68,10 +71,9 @@ impl Telegram {
                         .lock()
                         .await
                         .clone()
-                        .expect("Commands service must be set!")
+                        .ok_or("Commands service not set")?
                         .handle_change_city(change_city)
-                        .await
-                        .expect("Failed to handle start");
+                        .await?;
                 }
                 Bind::ChangeAreasOfInterest => {
                     let change_areas_of_interest = ChangeAreasOfInterest {
@@ -83,10 +85,9 @@ impl Telegram {
                         .lock()
                         .await
                         .clone()
-                        .expect("Commands service must be set!")
+                        .ok_or("Commands service not set")?
                         .handle_change_areas_of_interest(change_areas_of_interest)
-                        .await
-                        .expect("Failed to handle start");
+                        .await?;
                 }
             }
         } else {
@@ -99,9 +100,11 @@ impl Telegram {
                 .await
                 .expect("Failed to send message");
         }
+
+        Ok(())
     }
 
-    pub async fn run(self: Arc<Self>) {
+    pub async fn run(self: Arc<Self>) -> Result<(), Box<dyn std::error::Error>> {
         let tg = Arc::clone(&self);
         let bot = tg.bot.clone();
 
@@ -121,11 +124,14 @@ impl Telegram {
             async move {
                 let tg = Arc::clone(&tg);
                 tg.handle_message(user, msg.text().unwrap_or("No text"))
-                    .await;
+                    .await
+                    .expect("Failed to handle message");
                 Ok(())
             }
         })
         .await;
+
+        Ok(())
     }
 
     pub async fn send_message(

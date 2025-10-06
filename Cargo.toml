@@ -1,7 +1,6 @@
 [workspace]
 members = ["meowbot-core", "meowbot-ai", "meowbot-db", "meowbot-platform", "meowbot-weather", "meowbot-proto"]
 resolver = "2"
-edition = 2024
 
 [workspace.lints.clippy]
 nursery = { level = "warn", priority = -1 }

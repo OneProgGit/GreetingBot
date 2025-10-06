@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Connected to COMMANDS at {commands_addr}...");
 
     tg_clone.init(commands_client).await;
-    tg_clone.run().await;
+    tg_clone.run().await?;
 
     Ok(())
 }
