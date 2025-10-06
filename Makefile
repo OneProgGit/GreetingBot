@@ -5,9 +5,12 @@ OUT_DIR := bin
 
 .PHONY: all $(CRATES) clean
 
-build: $(CRATES)
+all: $(CRATES)
 
 $(CRATES):
+	cargo test -p $@ $(if $(filter $(MODE),release),--release,)
+	cargo clippy --no-deps -p $@ $(if $(filter $(MODE),release),--release,)
+	cargo fmt --check -p $@ $(if $(filter $(MODE),release),--release,)
 	cargo build -p $@ $(if $(filter $(MODE),release),--release,)
 	mkdir -p $(OUT_DIR)/$@
 	cp target/$(MODE)/$@ $(OUT_DIR)/$@/

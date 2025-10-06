@@ -3,7 +3,7 @@ members = ["meowbot-core", "meowbot-ai", "meowbot-db", "meowbot-platform", "meow
 resolver = "2"
 
 [workspace.lints.clippy]
-nursery = { level = "warn", priority = -1 }
+nursery = { level = "deny", priority = -1 }
 multiple_crate_versions = "allow"
 
 [workspace.lints.rustdoc]

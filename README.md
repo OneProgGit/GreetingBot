@@ -82,10 +82,10 @@ Make sure you're in the root directory of the project:
 pwd
 ```
 
-Build all crates:
+Test, check formatting, lint and build all crates:
 
 ```bash
-make build
+make all
 ```
 
 Run 
