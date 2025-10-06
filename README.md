@@ -5,7 +5,7 @@ It has microservice architecture (since 0.7.0), which allows you to choose datab
 
 ## MeowBot in action
 
-![MeowBot in action](https://github.com/user-attachments/assets/eebb6303-783f-4ce5-9762-26bbcbf05b1c)
+![MeowBot in action](https://github.com/user-attachments/assets/42c74c67-a809-49dd-a323-454ae1cac4f0)
 
 ## Getting started
 
