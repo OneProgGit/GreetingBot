@@ -58,7 +58,6 @@ impl CommandHandler for App {
                 Command::ChangeAreasOfInterest => todo!(),
             }
             .await?;
-            Ok(Response::new(()))
         } else {
             let new_message = NewMessage {
                 user: request.user,
@@ -69,9 +68,8 @@ impl CommandHandler for App {
                 .clone()
                 .send_message(new_message)
                 .await?;
-
-            Ok(Response::new(()))
         }
+        Ok(Response::new(()))
     }
 }
 
