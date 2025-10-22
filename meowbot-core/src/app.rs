@@ -56,7 +56,8 @@ impl CommandHandler for App {
                 ),
                 Command::ChangeCity => todo!(),
                 Command::ChangeAreasOfInterest => todo!(),
-            };
+            }
+            .await?;
             Ok(Response::new(()))
         } else {
             let new_message = NewMessage {

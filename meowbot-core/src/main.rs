@@ -107,7 +107,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Binding all commands...");
 
-    arc_app.clone().bind_all_commands().await;
+    app.clone().bind_all_commands().await;
 
     println!("Scheduling all tasks...");
 
