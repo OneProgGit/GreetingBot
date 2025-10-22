@@ -7,14 +7,9 @@ import "models.proto";
 
 service Platform {
   rpc SendMessage(NewMessage) returns (google.protobuf.Empty);
-  rpc BindStartCommand(Command) returns (google.protobuf.Empty);
-  rpc BindChangeCityCommand(Command) returns (google.protobuf.Empty);
-  rpc BindChangeAreasOfInterestCommand(Command) returns (google.protobuf.Empty);
 }
 
 message NewMessage {
   models.User user = 1;
   string text = 2;
 }
-
-message Command { string text = 1; }

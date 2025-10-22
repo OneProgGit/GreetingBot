@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use meowbot_proto::generated::{
     commands::command_handler_client::CommandHandlerClient,
-    platform::{Command, NewMessage, platform_server::Platform},
+    platform::{NewMessage, platform_server::Platform},
 };
 use tonic::{Request, Response, Status, transport::Channel};
 
-use crate::telegram::{Bind, Telegram};
+use crate::telegram::Telegram;
 
 #[derive(Clone)]
 pub struct TelegramService {
@@ -33,26 +33,5 @@ impl TelegramService {
 impl Platform for TelegramService {
     async fn send_message(&self, new_message: Request<NewMessage>) -> Result<Response<()>, Status> {
         self.tg.clone().send_message(new_message).await
-    }
-
-    async fn bind_start_command(&self, cmd: Request<Command>) -> Result<Response<()>, Status> {
-        self.tg.clone().bind_command(Bind::Start, cmd).await
-    }
-
-    async fn bind_change_city_command(
-        &self,
-        cmd: Request<Command>,
-    ) -> Result<Response<()>, Status> {
-        self.tg.clone().bind_command(Bind::ChangeCity, cmd).await
-    }
-
-    async fn bind_change_areas_of_interest_command(
-        &self,
-        cmd: Request<Command>,
-    ) -> Result<Response<()>, Status> {
-        self.tg
-            .clone()
-            .bind_command(Bind::ChangeAreasOfInterest, cmd)
-            .await
     }
 }

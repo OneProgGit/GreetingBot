@@ -1,9 +1,9 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use meowbot_proto::generated::{
-    commands::{ChangeAreasOfInterest, ChangeCity, command_handler_client::CommandHandlerClient},
+    commands::{HandleCommandMessage, command_handler_client::CommandHandlerClient},
     models::User,
-    platform::{Command, NewMessage},
+    platform::NewMessage,
 };
 use teloxide::{
     Bot,
@@ -14,15 +14,8 @@ use teloxide::{
 use tokio::sync::Mutex;
 use tonic::{Request, Response, Status, transport::Channel};
 
-pub enum Bind {
-    Start,
-    ChangeCity,
-    ChangeAreasOfInterest,
-}
-
 pub struct Telegram {
     bot: Arc<Bot>,
-    binds: Mutex<HashMap<String, Bind>>,
     commands_service: Mutex<Option<CommandHandlerClient<Channel>>>,
 }
 
@@ -32,7 +25,6 @@ impl Telegram {
 
         Self {
             bot: Arc::new(bot),
-            binds: Mutex::new(HashMap::new()),
             commands_service: Mutex::new(None),
         }
     }
@@ -48,58 +40,18 @@ impl Telegram {
     ) -> Result<(), Box<dyn std::error::Error>> {
         println!("Handling message: '{msg}' from {user:?}...");
 
-        let msgs: Vec<&str> = msg.split(" ").collect();
+        let request = HandleCommandMessage {
+            user: user.into(),
+            command: msg.into(),
+        };
 
-        if let Some(cmd) = self.binds.lock().await.get(msgs[0]) {
-            match *cmd {
-                Bind::Start => {
-                    self.commands_service
-                        .lock()
-                        .await
-                        .clone()
-                        .expect("Commands service must be set!")
-                        .handle_start(user)
-                        .await?;
-                }
-                Bind::ChangeCity => {
-                    let change_city = ChangeCity {
-                        user: Some(user),
-                        new_city: msgs[1].into(),
-                    };
-
-                    self.commands_service
-                        .lock()
-                        .await
-                        .clone()
-                        .ok_or("Commands service not set")?
-                        .handle_change_city(change_city)
-                        .await?;
-                }
-                Bind::ChangeAreasOfInterest => {
-                    let change_areas_of_interest = ChangeAreasOfInterest {
-                        user: Some(user),
-                        new_areas_of_interest: msgs[1].into(),
-                    };
-
-                    self.commands_service
-                        .lock()
-                        .await
-                        .clone()
-                        .ok_or("Commands service not set")?
-                        .handle_change_areas_of_interest(change_areas_of_interest)
-                        .await?;
-                }
-            }
-        } else {
-            let new_message = NewMessage {
-                user: Some(user),
-                text: "Неизвестная команда!".into(),
-            };
-
-            self.send_message(Request::new(new_message))
-                .await
-                .expect("Failed to send message");
-        }
+        self.commands_service
+            .lock()
+            .await
+            .clone()
+            .ok_or_else(|| "Commands service must be set!")?
+            .handle_command(request)
+            .await?;
 
         Ok(())
     }
@@ -141,27 +93,16 @@ impl Telegram {
         println!("Sending message: {new_message:?}...");
 
         let new_message = new_message.get_ref().to_owned();
-        let user = new_message.user.expect("User must be set!");
+        let user = new_message
+            .user
+            .ok_or_else(|| Status::invalid_argument("Message must be set!"))?;
 
         self.bot
             .send_message(user.id, new_message.text)
             .parse_mode(ParseMode::Html)
             .await
-            .expect("Failed to send message");
+            .map_err(|e| Status::from_error(Box::new(e)))?;
 
-        Ok(Response::new(()))
-    }
-
-    pub async fn bind_command(
-        self: Arc<Self>,
-        bind: Bind,
-        cmd: Request<Command>,
-    ) -> Result<Response<()>, Status> {
-        let cmd = cmd.get_ref().to_owned();
-        let mut cmd_text = String::from("/");
-        cmd_text.push_str(&cmd.text);
-
-        self.binds.lock().await.insert(cmd_text, bind);
         Ok(Response::new(()))
     }
 }

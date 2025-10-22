@@ -1,13 +1,13 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use chrono::Utc;
 use cron_tab::AsyncCron;
 use meowbot_proto::generated::{
     ai::{AiRequest, ai_client::AiClient},
-    commands::{ChangeAreasOfInterest, ChangeCity, command_handler_server::CommandHandler},
+    commands::{HandleCommandMessage, command_handler_server::CommandHandler},
     db::{GetUserMessage, db_client::DbClient},
     models::User,
-    platform::{Command, NewMessage, platform_client::PlatformClient},
+    platform::{NewMessage, platform_client::PlatformClient},
     weather::{GetWeatherMessage, weather_client::WeatherClient},
 };
 use rand::random_range;
@@ -20,18 +20,79 @@ use crate::{
 use string_format::string_format;
 
 #[derive(Clone)]
+enum Command {
+    Start,
+    ChangeCity,
+    ChangeAreasOfInterest,
+}
+
+#[derive(Clone)]
 pub struct App {
     ai_client: AiClient<Channel>,
     db_client: DbClient<Channel>,
     platform_client: PlatformClient<Channel>,
     weather_client: WeatherClient<Channel>,
     config: Configuration,
+    binds: HashMap<String, Command>,
 }
 
 #[tonic::async_trait]
 impl CommandHandler for App {
-    async fn handle_start(&self, user: Request<User>) -> Result<Response<()>, Status> {
-        let user = user.get_ref().to_owned();
+    async fn handle_command(
+        &self,
+        request: Request<HandleCommandMessage>,
+    ) -> Result<Response<()>, Status> {
+        let request = request.get_ref().to_owned();
+        println!("Handling message {request:?}...");
+
+        let cmd = request.command;
+
+        if let Some(b) = self.binds.get(&cmd) {
+            match *b {
+                Command::Start => self.handle_start(
+                    request
+                        .user
+                        .ok_or_else(|| Status::invalid_argument("User must be set!"))?,
+                ),
+                Command::ChangeCity => todo!(),
+                Command::ChangeAreasOfInterest => todo!(),
+            };
+            Ok(Response::new(()))
+        } else {
+            let new_message = NewMessage {
+                user: request.user,
+                text: "Неизвестная команда".into(),
+            };
+
+            self.platform_client
+                .clone()
+                .send_message(new_message)
+                .await?;
+
+            Ok(Response::new(()))
+        }
+    }
+}
+
+impl App {
+    pub fn new(
+        ai_client: AiClient<Channel>,
+        db_client: DbClient<Channel>,
+        platform_client: PlatformClient<Channel>,
+        weather_client: WeatherClient<Channel>,
+        config: Configuration,
+    ) -> Self {
+        Self {
+            ai_client,
+            db_client,
+            platform_client,
+            weather_client,
+            config,
+            binds: HashMap::new(),
+        }
+    }
+
+    async fn handle_start(&self, user: User) -> Result<Response<()>, Status> {
         println!("Handling start command for user {user:?}...");
 
         let new_message = NewMessage {
@@ -46,43 +107,32 @@ impl CommandHandler for App {
         self.platform_client
             .clone()
             .send_message(new_message)
-            .await
-            .expect("Failed to send message to user");
+            .await?;
 
-        self.db_client
-            .clone()
-            .create_user(user)
-            .await
-            .expect("Failed to create user!");
+        self.db_client.clone().create_user(user).await?;
 
         Ok(Response::new(()))
     }
 
     async fn handle_change_city(
         &self,
-        request: Request<ChangeCity>,
+        id: String,
+        new_city: String,
     ) -> Result<Response<()>, Status> {
-        let request = request.get_ref().to_owned();
-        println!("Changing city {request:?}...");
+        println!("Changing city for id {id} and city {new_city}...");
 
-        let mut user = request
-            .user
-            .ok_or_else(|| Status::invalid_argument("User is not set"))?;
-
-        let get_user = GetUserMessage {
-            id: user.id.clone(),
-        };
-        user = self
+        let get_user = GetUserMessage { id };
+        let mut user = self
             .db_client
             .clone()
             .get_user(get_user)
             .await?
             .get_ref()
             .to_owned();
-        user.city = request.new_city.clone();
+        user.city = new_city.clone();
 
         let get_weather = GetWeatherMessage {
-            city: request.new_city.clone(),
+            city: new_city.clone(),
         };
 
         if self
@@ -96,7 +146,7 @@ impl CommandHandler for App {
 
             let new_message = NewMessage {
                 user: Some(user),
-                text: string_format!(self.config.changed_city_fmt.clone(), request.new_city),
+                text: string_format!(self.config.changed_city_fmt.clone(), new_city),
             };
 
             self.platform_client
@@ -106,10 +156,7 @@ impl CommandHandler for App {
         } else {
             let new_message = NewMessage {
                 user: Some(user),
-                text: string_format!(
-                    self.config.changed_city_failed_fmt.clone(),
-                    request.new_city
-                ),
+                text: string_format!(self.config.changed_city_failed_fmt.clone(), new_city),
             };
 
             self.platform_client
@@ -123,30 +170,23 @@ impl CommandHandler for App {
 
     async fn handle_change_areas_of_interest(
         &self,
-        request: Request<ChangeAreasOfInterest>,
+        id: String,
+        new_areas: String,
     ) -> Result<Response<()>, Status> {
-        let request = request.get_ref().to_owned();
-        println!("Changing areas of interest {request:?}...");
+        println!("Changing areas of interest for id {id:?} and areas {new_areas}...");
 
-        let mut user = request.user.expect("User must be set!");
-        let get_user = GetUserMessage {
-            id: user.id.clone(),
-        };
-        user = self
+        let get_user = GetUserMessage { id };
+        let mut user = self
             .db_client
             .clone()
             .get_user(get_user)
-            .await
-            .expect("Failed to get user")
+            .await?
             .get_ref()
             .to_owned();
-        user.areas_of_interest = request.new_areas_of_interest;
 
-        self.db_client
-            .clone()
-            .update_user(user.clone())
-            .await
-            .expect("Failed to update user");
+        user.areas_of_interest = new_areas;
+
+        self.db_client.clone().update_user(user.clone()).await?;
 
         let new_message = NewMessage {
             user: Some(user),
@@ -156,57 +196,16 @@ impl CommandHandler for App {
         self.platform_client
             .clone()
             .send_message(new_message)
-            .await
-            .expect("Failed to send message");
+            .await?;
 
         Ok(Response::new(()))
     }
-}
 
-impl App {
-    pub const fn new(
-        ai_client: AiClient<Channel>,
-        db_client: DbClient<Channel>,
-        platform_client: PlatformClient<Channel>,
-        weather_client: WeatherClient<Channel>,
-        config: Configuration,
-    ) -> Self {
-        Self {
-            ai_client,
-            db_client,
-            platform_client,
-            weather_client,
-            config,
-        }
-    }
-
-    pub async fn bind_all_commands(self: Arc<Self>) {
-        let start_cmd = Command {
-            text: "start".into(),
-        };
-        self.platform_client
-            .clone()
-            .bind_start_command(start_cmd)
-            .await
-            .expect("Failed to bind commands");
-
-        let change_city_cmd = Command {
-            text: "setcity".into(),
-        };
-        self.platform_client
-            .clone()
-            .bind_change_city_command(change_city_cmd)
-            .await
-            .expect("Failed to bind commands");
-
-        let change_areas_of_interest_cmd = Command {
-            text: "setareas".into(),
-        };
-        self.platform_client
-            .clone()
-            .bind_change_areas_of_interest_command(change_areas_of_interest_cmd)
-            .await
-            .expect("Failed to bind commands");
+    pub async fn bind_all_commands(&mut self) {
+        self.binds.insert("start".into(), Command::Start);
+        self.binds.insert("setcity".into(), Command::ChangeCity);
+        self.binds
+            .insert("setareas".into(), Command::ChangeAreasOfInterest);
     }
 
     pub async fn schedule_all_tasks(self: Arc<Self>) {
