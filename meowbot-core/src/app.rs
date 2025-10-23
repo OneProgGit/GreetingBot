@@ -45,31 +45,46 @@ impl CommandHandler for App {
         let request = request.get_ref().to_owned();
         println!("Handling message {request:?}...");
 
-        let cmd = request.command;
+        let cmds: Vec<&str> = request.command.split(" ").collect();
+        let user = request
+            .user
+            .ok_or_else(|| Status::invalid_argument("User must be set!"))?;
 
-        if let Some(b) = self.binds.get(&cmd) {
+        if let Some(b) = self.binds.get(cmds[0]) {
             match *b {
-                Command::Start => self.handle_start(
-                    request
-                        .user
-                        .ok_or_else(|| Status::invalid_argument("User must be set!"))?,
-                ),
-                Command::ChangeCity => todo!(),
-                Command::ChangeAreasOfInterest => todo!(),
+                Command::Start => self.handle_start(user).await,
+                Command::ChangeCity => {
+                    if cmds.len() < 2 {
+                        let new_message = NewMessage {
+                            user: Some(user.clone()),
+                            text: self.config.changed_city_failed_fmt.clone(),
+                        };
+                        self.platform_client.clone().send_message(new_message).await
+                    } else {
+                        self.handle_change_city(user.id, cmds[1].to_string()).await
+                    }
+                }
+                Command::ChangeAreasOfInterest => {
+                    if cmds.len() < 2 {
+                        let new_message = NewMessage {
+                            user: Some(user.clone()),
+                            text: self.config.changed_areas_of_interest_failed_fmt.clone(),
+                        };
+                        self.platform_client.clone().send_message(new_message).await
+                    } else {
+                        self.handle_change_areas_of_interest(user.id, cmds[1].to_string())
+                            .await
+                    }
+                }
             }
-            .await?;
         } else {
             let new_message = NewMessage {
-                user: request.user,
-                text: "Неизвестная команда".into(),
+                user: Some(user),
+                text: self.config.unknown_cmd_fmt.clone(),
             };
 
-            self.platform_client
-                .clone()
-                .send_message(new_message)
-                .await?;
+            self.platform_client.clone().send_message(new_message).await
         }
-        Ok(Response::new(()))
     }
 }
 

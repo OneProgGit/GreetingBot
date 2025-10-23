@@ -54,6 +54,9 @@ changed_city_fmt = "" # Format of message which sends to user when changed city 
 changed_city_failed_fmt = "" # Format of message which sends to user when changed city name failed
 
 changed_areas_of_interest_fmt = "" # Format of message which sends to user when updated areas of interest successfully
+changed_areas_of_interest_failed_fmt = "" # Format of message which sends to user when updated areas of interest failed
+
+unknown_cmd_fmt = "" # Format of message which sends to user when unknown command provided
 ```
 
 Create .env in the same folder and fill these fields:
