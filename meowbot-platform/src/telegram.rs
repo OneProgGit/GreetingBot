@@ -49,7 +49,7 @@ impl Telegram {
             .lock()
             .await
             .clone()
-            .ok_or_else(|| "Commands service must be set!")?
+            .ok_or("Commands service must be set!")?
             .handle_command(request)
             .await?;
 
