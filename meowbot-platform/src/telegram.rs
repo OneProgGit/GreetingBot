@@ -40,6 +40,11 @@ impl Telegram {
     ) -> Result<(), Box<dyn std::error::Error>> {
         println!("Handling message: '{msg}' from {user:?}...");
 
+        let mut msg = msg;
+        if msg.starts_with('/') {
+            msg = &msg[1..];
+        }
+
         let request = HandleCommandMessage {
             user: user.into(),
             command: msg.into(),
