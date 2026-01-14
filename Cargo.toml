@@ -1,5 +1,12 @@
 [workspace]
-members = ["meowbot-core", "meowbot-ai", "meowbot-db", "meowbot-platform", "meowbot-weather", "meowbot-proto"]
+members = [
+    "meowbot-core",
+    "meowbot-ai",
+    "meowbot-db",
+    "meowbot-platform",
+    "meowbot-weather",
+    "meowbot-proto",
+]
 resolver = "2"
 
 [workspace.lints.clippy]
@@ -10,7 +17,6 @@ multiple_crate_versions = "allow"
 all = "deny"
 
 [profile.release]
-opt-level = 3
 lto = "fat"
 codegen-units = 1
 strip = "symbols"
