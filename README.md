@@ -103,4 +103,4 @@ If want to clean all, then run:
 make clean
 ```
 
-If you want to build in release mode, then change MODE in Makefile to release.
+If you want to build in release mode, then change MODE in Makefile to `release`.
