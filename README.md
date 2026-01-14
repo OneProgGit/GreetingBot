@@ -97,3 +97,10 @@ make run-(ai/db/platform/weather/core)
 ```
 
 for each microservice respectively to run it.
+
+If want to clean all, then run:
+```bash
+make clean
+```
+
+If you want to build in release mode, then change MODE in Makefile to release.
